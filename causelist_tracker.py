@@ -89,13 +89,57 @@ def is_court_working_day(d):
         return False
     return True
 
+def get_file_dates(list_type, upload_date):
+    """
+    Return list of candidate file_dates for a given upload_date and list type.
+
+    Confirmed offsets (from image):
+      Daily        : +2 days, skip weekend
+                     Mon→Wed, Tue→Thu, Wed→Fri, Thu→Mon, Fri→Mon, Sat→Mon
+                     Friday/Saturday also try Tuesday (+4/+3 days)
+      Supplementary: +1 day, skip weekend
+                     Mon→Tue, Tue→Wed, Wed→Thu, Thu→Fri, Fri→Mon, Sat→Mon
+      Weekly       : Monday of next week after upload Wednesday
+    """
+    lt = list_type.upper()
+
+    def skip_to_monday(d):
+        """Push Saturday→Monday, Sunday→Monday."""
+        if d.weekday() == 6:
+            d += timedelta(days=1)
+        elif d.weekday() == 5:
+            d += timedelta(days=2)
+        return d
+
+    if "SUPPLEMENT" in lt:
+        suffix     = "-SUP1"
+        fd         = skip_to_monday(upload_date + timedelta(days=1))
+        file_dates = [fd]
+
+    elif "WEEK" in lt:
+        suffix         = "-WKL"
+        current_monday = upload_date - timedelta(days=upload_date.weekday())
+        file_dates     = [current_monday + timedelta(days=7)]
+
+    else:
+        suffix     = ""
+        fd         = skip_to_monday(upload_date + timedelta(days=2))
+        file_dates = [fd]
+        # Friday upload: also try Tuesday (+4 days: Fri→Tue)
+        if upload_date.weekday() == 4:
+            file_dates.append(upload_date + timedelta(days=4))
+        # Saturday upload: also try Tuesday (+3 days: Sat→Tue)
+        elif upload_date.weekday() == 5:
+            file_dates.append(upload_date + timedelta(days=3))
+
+    return suffix, file_dates
+
+
 def run_once(list_type):
     """
     Download the causelist PDF for list_type using direct HTTP (no browser).
-    Tries all working day filenames from today up to 7 days ahead.
-    This handles cases where the court uploads lists for future dates
-    (e.g. Friday uploading Tuesday's list).
-    Returns (True, list_type, date_str, url) on success, (False, ...) on failure.
+    Tries today and last 6 working days, using corrected file_date formula.
+    Returns (True, list_type, date_str, url) on success, (False,...) on failure.
     """
     today   = now_ist().date()
     headers = {
@@ -106,26 +150,24 @@ def run_once(list_type):
         "Accept"    : "application/pdf,*/*",
     }
 
-    lt = list_type.upper()
-    if "SUPPLEMENT" in lt:
-        suffix = "-SUP1"
-    elif "WEEK" in lt:
-        suffix = "-WKL"
-    else:
-        suffix = ""
-
-    # Build candidate file dates: today + next 7 days, skip non-working days
-    candidates = []
-    for delta in range(8):
-        d = today + timedelta(days=delta)
-        if not is_court_working_day(d):
+    # Build ordered list of (file_date, upload_date) pairs to try
+    # Most recent upload_date first; for each upload_date try all its file_dates
+    tried = set()
+    attempts = []
+    for days_back in range(7):
+        upload_date = today - timedelta(days=days_back)
+        if not is_court_working_day(upload_date):
             continue
-        candidates.append(d)
+        suffix, file_dates = get_file_dates(list_type, upload_date)
+        for fd in file_dates:
+            if fd not in tried and is_court_working_day(fd):
+                tried.add(fd)
+                attempts.append((fd, suffix))
 
-    # Try most recent/upcoming first (newest first)
-    candidates.sort(reverse=True)
+    # Sort by file_date descending — try most upcoming first
+    attempts.sort(key=lambda x: x[0], reverse=True)
 
-    for file_date in candidates:
+    for file_date, suffix in attempts:
         filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}.pdf"
         url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
         date_str = file_date.strftime("%d %b,%Y")
@@ -143,7 +185,7 @@ def run_once(list_type):
         except Exception as e:
             print(f"     Error: {e}")
 
-    print(f"  ❌ Could not find {list_type} for any date in range.")
+    print(f"  ❌ Could not download {list_type} for any recent date.")
     return False, list_type, None, None
 
 
