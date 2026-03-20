@@ -58,20 +58,11 @@ jobs:
       - name: Determine which list to run
         id: listtype
         run: |
-          # Get current UTC hour to decide which list to run
           HOUR=$(date -u +%H)
-          DAY=$(date -u +%u)   # 1=Mon … 7=Sun
           INPUT="${{ github.event.inputs.list_type }}"
 
           if [ "$INPUT" = "ALL" ] || [ -z "$INPUT" ]; then
-            MINUTE=$(date -u +%M)
-            if [ "$HOUR" = "14" ] && [ "$MINUTE" = "30" ]; then
-              echo "list=SUPPLEMENTARY LIST" >> $GITHUB_OUTPUT
-            elif [ "$HOUR" = "14" ]; then
-              echo "list=DAILY LIST" >> $GITHUB_OUTPUT
-            else
-              echo "list=DAILY LIST" >> $GITHUB_OUTPUT
-            fi
+            echo "list=ALL" >> $GITHUB_OUTPUT
           else
             echo "list=$INPUT" >> $GITHUB_OUTPUT
           fi
