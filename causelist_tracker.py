@@ -99,18 +99,31 @@ def pdf_filename_and_url(list_type, upload_date):
       Weekly       : Wednesday of that week → CG<DDMMYYYY>-WKL.pdf
     """
     lt = list_type.upper()
+    def next_court_date(d, days_ahead):
+        """
+        Add days_ahead days to d, then push forward past Sunday or Saturday
+        to the next working day (Monday).
+        Saturday is only skipped when it would be the file_date — the court
+        releases lists on working Saturdays but always for the FOLLOWING Monday.
+        """
+        result = d + timedelta(days=days_ahead)
+        # Push past Sunday → Monday
+        if result.weekday() == 6:
+            result += timedelta(days=1)
+        # Push past Saturday → Monday (lists on Sat always cover Mon)
+        if result.weekday() == 5:
+            result += timedelta(days=2)
+        return result
+
     if "SUPPLEMENT" in lt:
-        file_date = upload_date + timedelta(days=1)
+        file_date = next_court_date(upload_date, 1)
         suffix    = "-SUP1"
     elif "WEEK" in lt:
-        # Uploaded every Wednesday; file covers the COMING week.
-        # File name = Monday of the next week after upload_date.
-        # e.g. uploaded Wed 18 Mar → coming week starts Mon 23 Mar → CG23032026-WKL.pdf
         current_monday = upload_date - timedelta(days=upload_date.weekday())
         file_date = current_monday + timedelta(days=7)
         suffix    = "-WKL"
     else:
-        file_date = upload_date + timedelta(days=2)
+        file_date = next_court_date(upload_date, 2)
         suffix    = ""
 
     filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}.pdf"
