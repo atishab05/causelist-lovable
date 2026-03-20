@@ -154,7 +154,7 @@ def run_once(list_type):
             print(f"  Skipping {filename} — file date {file_date} is a court holiday")
             continue
 
-        date_str = candidate.strftime("%d %b,%Y")
+        date_str = file_date.strftime("%d %b,%Y")
         print(f"  Trying {list_type}: {filename}  ({url})")
 
         try:
