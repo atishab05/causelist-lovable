@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-03-20T20:09:04+05:30",
+  "updated_at": "2026-03-20T20:39:21+05:30",
   "runs": [
     {
       "list_type": "DAILY LIST",
@@ -23,8 +23,8 @@
     {
       "list_type": "WEEKLY LIST",
       "date_str": "23 Mar,2026",
-      "ran_at": "2026-03-20T20:09:04+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/29808855/causelist.pdf",
+      "ran_at": "2026-03-20T20:39:21+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/29812879/causelist.pdf",
       "pdf_pages": 141,
       "match_count": 1,
       "matches": [
@@ -40,6 +40,59 @@
           "purpose": "* [FOR FINAL HEARING ] COURT ORDER NEXT WEEK [] * [ FOR FINAL HEARING ] [ C.O. MONTH OF JANUARY, 2026 ] []"
         }
       ]
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "23 Mar,2026",
+      "ran_at": "2026-03-20T20:34:43+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/29812367/causelist.pdf",
+      "pdf_pages": 175,
+      "match_count": 3,
+      "matches": [
+        {
+          "page": 9,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE",
+            "HON'BLE SHRI JUSTICE RAVINDRA KUMAR AGRAWAL"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 2",
+          "sno": "4",
+          "case_no": "CRA/768/2024",
+          "purpose": "* [ FOR FURTHER MONITORING AND ON ADMISSION & I.A. NO. 01 APPLICATION FOR TAKING DOCUMENTS AND I.A. NO. 02 APPLICATION FOR PERMISSION TO INTERVENE IN THE WRIT PETITION (PIL) NO. 93/2023 AS INTERVENER] (C.O.F.D. 23-03-2026) [] * [ORDERS ON I.A. NO. 02 APPLICATION FOR SUSPENSION OF SENTENCE AND GRANT OF BAIL & I.A. NO. 3 APPLICATION FOR URGENT HEARING. ] (WITH T.C.R. & 2 SET PAPER BOOK) ( REPLY FILED.) (COURT SLIP W/C 23.03.2026.) (IN JAIL SINCE 19.08.2021.) [DANTEWADA]"
+        },
+        {
+          "page": 26,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "18",
+          "case_no": "MCRC/2636/2026",
+          "purpose": "* [ON ADMISSION](2ND BAIL APPLICATION) [JANJGIR-CHAMPA] * [ON ADMISSION](N.D.P.S. ACT)(SAME F.I.R. NO.) [RAIPUR]"
+        },
+        {
+          "page": 31,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "61",
+          "case_no": "MCRC/2721/2026",
+          "purpose": "* [ON ADMISSION] (N.D.P.S. ACT) [RAIPUR]"
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "23 Mar,2026",
+      "ran_at": "2026-03-20T20:35:09+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/29812409/causelist.pdf",
+      "pdf_pages": 45,
+      "match_count": 0,
+      "matches": []
     }
   ]
 }
