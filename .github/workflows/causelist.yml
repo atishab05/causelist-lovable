@@ -1,0 +1,89 @@
+# Chhattisgarh High Court – Causelist Tracker
+# Runs automatically at IST upload times (converted to UTC).
+# After each run the parsed results are committed to results.json
+# so the Lovable dashboard can fetch them without a backend.
+
+name: Causelist Tracker
+
+on:
+  schedule:
+    # Daily List — 12:00 UTC = 17:30 IST, Mon–Sat
+    - cron: '0 12 * * 1-6'
+    # Supplementary List — 13:00 UTC = 18:30 IST, Mon–Sat
+    - cron: '0 13 * * 1-6'
+
+  workflow_dispatch:
+    inputs:
+      list_type:
+        description: 'List type to run'
+        required: false
+        default: 'ALL'
+        type: choice
+        options:
+          - ALL
+          - DAILY LIST
+          - SUPPLEMENTARY LIST
+          - WEEKLY LIST
+
+# Allow the workflow to write back to the repo
+permissions:
+  contents: write
+
+jobs:
+  run-tracker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # Use a token so the commit push is authenticated
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install pdfplumber requests twilio pytz
+
+      - name: Determine which list to run
+        id: listtype
+        run: |
+          HOUR=$(date -u +%H)
+          INPUT="${{ github.event.inputs.list_type }}"
+
+          if [ "$INPUT" = "ALL" ] || [ -z "$INPUT" ]; then
+            if [ "$HOUR" = "12" ]; then
+              echo "list=DAILY LIST" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" = "13" ]; then
+              echo "list=SUPPLEMENTARY LIST" >> $GITHUB_OUTPUT
+            else
+              echo "list=DAILY LIST" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "list=$INPUT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run tracker
+        env:
+          CL_LIST_TYPE:        ${{ steps.listtype.outputs.list }}
+          TWILIO_ACCOUNT_SID:  ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN:   ${{ secrets.TWILIO_AUTH_TOKEN }}
+          LAWYER_NAME:         ${{ secrets.LAWYER_NAME }}
+          WHATSAPP_TO:         ${{ secrets.WHATSAPP_TO }}
+          WHATSAPP_ENABLED:    ${{ secrets.WHATSAPP_ENABLED }}
+        run: python causelist_tracker.py
+
+      # ── Commit results.json back to the repo ──────────────────────────────
+      - name: Commit results.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results.json
+          # Only commit if there are changes
+          git diff --cached --quiet || git commit -m "chore: update results.json [skip ci]"
+          git push
