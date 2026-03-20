@@ -1,17 +1,24 @@
 # Chhattisgarh High Court – Causelist Tracker
-# Runs automatically at IST upload times (converted to UTC).
-# After each run the parsed results are committed to results.json
-# so the Lovable dashboard can fetch them without a backend.
+# Runs automatically at IST upload times (converted to UTC):
+#
+#   Daily List        → 17:30 IST = 12:00 UTC  (Mon–Sat)
+#   Supplementary List→ 18:30 IST = 13:00 UTC  (Mon–Sat)
+#   Weekly List       → 17:30 IST = 12:00 UTC  (Wednesday only)
+#
+# Each run retries up to 3 times if the PDF is not yet uploaded.
 
 name: Causelist Tracker
 
 on:
   schedule:
-    # Daily List — 12:00 UTC = 17:30 IST, Mon–Sat
-    - cron: '0 12 * * 1-6'
-    # Supplementary List — 13:00 UTC = 18:30 IST, Mon–Sat
-    - cron: '0 13 * * 1-6'
+    # Daily List — 14:00 UTC = 19:30 IST, Mon–Sat
+    - cron: '0 14 * * 1-6'
+    # Supplementary List — 14:30 UTC = 20:00 IST, Mon–Sat
+    - cron: '30 14 * * 1-6'
+    # Weekly List — 14:00 UTC = 19:30 IST, Wednesday only
+    - cron: '0 14 * * 3' 
 
+  # Allow manual trigger from GitHub UI for testing
   workflow_dispatch:
     inputs:
       list_type:
@@ -25,10 +32,6 @@ on:
           - SUPPLEMENTARY LIST
           - WEEKLY LIST
 
-# Allow the workflow to write back to the repo
-permissions:
-  contents: write
-
 jobs:
   run-tracker:
     runs-on: ubuntu-latest
@@ -38,7 +41,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          # Use a token so the commit push is authenticated
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -53,14 +55,17 @@ jobs:
       - name: Determine which list to run
         id: listtype
         run: |
+          # Get current UTC hour to decide which list to run
           HOUR=$(date -u +%H)
+          DAY=$(date -u +%u)   # 1=Mon … 7=Sun
           INPUT="${{ github.event.inputs.list_type }}"
 
           if [ "$INPUT" = "ALL" ] || [ -z "$INPUT" ]; then
-            if [ "$HOUR" = "12" ]; then
-              echo "list=DAILY LIST" >> $GITHUB_OUTPUT
-            elif [ "$HOUR" = "13" ]; then
+            MINUTE=$(date -u +%M)
+            if [ "$HOUR" = "14" ] && [ "$MINUTE" = "30" ]; then
               echo "list=SUPPLEMENTARY LIST" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" = "14" ]; then
+              echo "list=DAILY LIST" >> $GITHUB_OUTPUT
             else
               echo "list=DAILY LIST" >> $GITHUB_OUTPUT
             fi
@@ -78,12 +83,10 @@ jobs:
           WHATSAPP_ENABLED:    ${{ secrets.WHATSAPP_ENABLED }}
         run: python causelist_tracker.py
 
-      # ── Commit results.json back to the repo ──────────────────────────────
-      - name: Commit results.json
+      - name: Commit results.json back to repo
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add results.json
-          # Only commit if there are changes
           git diff --cached --quiet || git commit -m "chore: update results.json [skip ci]"
           git push
