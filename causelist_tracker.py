@@ -89,55 +89,16 @@ def is_court_working_day(d):
         return False
     return True
 
-def pdf_filename_and_url(list_type, upload_date):
-    """
-    Build the PDF filename and full URL from upload_date and list type.
-
-    Confirmed naming from live URL CG19032026.pdf (Daily, uploaded 18 Mar, covers 19 Mar):
-      Daily        : upload_date + 2 days  → CG<DDMMYYYY>.pdf
-      Supplementary: upload_date + 1 day   → CG<DDMMYYYY>-SUP1.pdf
-      Weekly       : Wednesday of that week → CG<DDMMYYYY>-WKL.pdf
-    """
-    lt = list_type.upper()
-    def next_court_date(d, days_ahead):
-        """
-        Add days_ahead days to d, then push forward past Sunday or Saturday
-        to the next working day (Monday).
-        Saturday is only skipped when it would be the file_date — the court
-        releases lists on working Saturdays but always for the FOLLOWING Monday.
-        """
-        result = d + timedelta(days=days_ahead)
-        # Push past Sunday → Monday
-        if result.weekday() == 6:
-            result += timedelta(days=1)
-        # Push past Saturday → Monday (lists on Sat always cover Mon)
-        if result.weekday() == 5:
-            result += timedelta(days=2)
-        return result
-
-    if "SUPPLEMENT" in lt:
-        file_date = next_court_date(upload_date, 1)
-        suffix    = "-SUP1"
-    elif "WEEK" in lt:
-        current_monday = upload_date - timedelta(days=upload_date.weekday())
-        file_date = current_monday + timedelta(days=7)
-        suffix    = "-WKL"
-    else:
-        file_date = next_court_date(upload_date, 2)
-        suffix    = ""
-
-    filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}.pdf"
-    url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
-    return filename, url, file_date
-
 def run_once(list_type):
     """
     Download the causelist PDF for list_type using direct HTTP (no browser).
-    Tries today's date first, then falls back one working day at a time.
-    Returns (True, list_type, date_str) on success, (False, ...) on failure.
+    Tries all working day filenames from today up to 7 days ahead.
+    This handles cases where the court uploads lists for future dates
+    (e.g. Friday uploading Tuesday's list).
+    Returns (True, list_type, date_str, url) on success, (False, ...) on failure.
     """
-    today    = now_ist().date()
-    headers  = {
+    today   = now_ist().date()
+    headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/122.0.0.0 Safari/537.36",
@@ -145,28 +106,28 @@ def run_once(list_type):
         "Accept"    : "application/pdf,*/*",
     }
 
-    # Try today and the last 7 days (need more range to skip holidays)
-    for days_back in range(8):
-        candidate = today - timedelta(days=days_back)
+    lt = list_type.upper()
+    if "SUPPLEMENT" in lt:
+        suffix = "-SUP1"
+    elif "WEEK" in lt:
+        suffix = "-WKL"
+    else:
+        suffix = ""
 
-        # Skip non-working days (Sunday, 2nd & 3rd Saturday)
-        if not is_court_working_day(candidate):
+    # Build candidate file dates: today + next 7 days, skip non-working days
+    candidates = []
+    for delta in range(8):
+        d = today + timedelta(days=delta)
+        if not is_court_working_day(d):
             continue
+        candidates.append(d)
 
-        # Weekly list only makes sense on/near a Wednesday
-        if "WEEK" in list_type.upper():
-            days_to_wed = (2 - candidate.weekday()) % 7
-            wed = candidate + timedelta(days=days_to_wed)
-            if abs((candidate - wed).days) > 6:
-                continue
+    # Try most recent/upcoming first (newest first)
+    candidates.sort(reverse=True)
 
-        filename, url, file_date = pdf_filename_and_url(list_type, candidate)
-
-        # Also skip if the file_date itself is a holiday (no list released for that day)
-        if not is_court_working_day(file_date):
-            print(f"  Skipping {filename} — file date {file_date} is a court holiday")
-            continue
-
+    for file_date in candidates:
+        filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}.pdf"
+        url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
         date_str = file_date.strftime("%d %b,%Y")
         print(f"  Trying {list_type}: {filename}  ({url})")
 
@@ -178,11 +139,11 @@ def run_once(list_type):
                 print(f"  ✅ Downloaded {filename} ({len(resp.content)//1024} KB)")
                 return True, list_type, date_str, url
             else:
-                print(f"     HTTP {resp.status_code} — not available yet")
+                print(f"     HTTP {resp.status_code} — not found")
         except Exception as e:
             print(f"     Error: {e}")
 
-    print(f"  ❌ Could not download {list_type} for any recent date.")
+    print(f"  ❌ Could not find {list_type} for any date in range.")
     return False, list_type, None, None
 
 
