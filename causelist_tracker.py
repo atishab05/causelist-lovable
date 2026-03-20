@@ -30,7 +30,7 @@ RESULTS_JSON_PATH  = "results.json"   # committed back to repo after every run
 # fall back to hardcoded values when running locally on your PC.
 import os as _cred_os
 TWILIO_ACCOUNT_SID = _cred_os.environ.get("TWILIO_ACCOUNT_SID", "ACdaaaaab8004a7a18d3e9fa592aacf4df")
-TWILIO_AUTH_TOKEN  = _cred_os.environ.get("TWILIO_AUTH_TOKEN",  "92f931df1ef9524cfd285762b0f066db")
+TWILIO_AUTH_TOKEN  = _cred_os.environ.get("TWILIO_AUTH_TOKEN",  "e050e3a56824637506a4c3ed0c925223")
 TWILIO_FROM        = "whatsapp:+14155238886"
 WHATSAPP_TO        = "whatsapp:" + _cred_os.environ.get("WHATSAPP_TO", "+919826474009")
 LAWYER_NAME        = _cred_os.environ.get("LAWYER_NAME", "SANJEEV BANJARE")
