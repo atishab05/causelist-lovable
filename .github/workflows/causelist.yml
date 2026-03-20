@@ -32,6 +32,9 @@ on:
           - SUPPLEMENTARY LIST
           - WEEKLY LIST
 
+permissions:
+  contents: write
+  
 jobs:
   run-tracker:
     runs-on: ubuntu-latest
