@@ -71,9 +71,51 @@ def now_ist():
     from datetime import datetime
     return datetime.now(IST)
 
+# ── HC Holiday Calendar 2026 ─────────────────────────────────────────────────
+# Source: High Court of Chhattisgarh Calendar 2026
+# Includes: gazette holidays, summer vacation, winter holidays
+HC_HOLIDAYS_2026 = {
+    date(2026, 1, 1),   # New Year Day
+    date(2026, 1, 26),  # Republic Day
+    date(2026, 3, 4),   # Holi
+    date(2026, 3, 5),   # Holi
+    date(2026, 3, 26),  # Ram Navami
+    date(2026, 3, 31),  # Mahaveer Jayanti
+    date(2026, 4, 3),   # Good Friday
+    date(2026, 4, 14),  # Dr. Ambedkar Jayanti
+    date(2026, 5, 27),  # Id-Ul-Zuha (Bakrid)
+    date(2026, 6, 26),  # Muharram
+    date(2026, 8, 26),  # Milad-Un-Nabi
+    date(2026, 8, 28),  # Raksha Bandhan
+    date(2026, 9, 4),   # Krishna Janmashtami
+    date(2026, 9, 14),  # Ganesh Chaturthi
+    date(2026, 10, 2),  # Gandhi Jayanti
+    date(2026, 10, 19), # Dashera Holidays
+    date(2026, 10, 20),
+    date(2026, 10, 21),
+    date(2026, 10, 22),
+    date(2026, 10, 23),
+    date(2026, 11, 6),  # Deepawali Holidays
+    date(2026, 11, 7),
+    date(2026, 11, 8),
+    date(2026, 11, 9),
+    date(2026, 11, 10),
+    date(2026, 11, 11),
+    date(2026, 11, 12),
+    date(2026, 11, 13),
+    date(2026, 11, 24), # Gurunanak Jayanti
+    date(2026, 12, 18), # Guru Ghasidas Jayanti
+    date(2026, 12, 25), # Christmas
+    # Summer Vacation: 18 May – 12 Jun 2026
+    *[date(2026, 5, d) for d in range(18, 32)],
+    *[date(2026, 6, d) for d in range(1, 13)],
+    # Winter Holidays: 24 Dec – 31 Dec 2026
+    *[date(2026, 12, d) for d in range(24, 32)],
+}
+
 def is_holiday_saturday(d):
     """Returns True if date is a 2nd or 3rd Saturday of the month (court holiday)."""
-    if d.weekday() != 5:   # not a Saturday
+    if d.weekday() != 5:
         return False
     sat_count = sum(
         1 for day in range(1, d.day + 1)
@@ -81,39 +123,55 @@ def is_holiday_saturday(d):
     )
     return sat_count in (2, 3)
 
-def is_court_working_day(d):
-    """Court works Mon–Sat except 2nd and 3rd Saturdays."""
+def is_court_holiday(d):
+    """
+    Returns True if the court is closed on date d.
+    Closed on: Sundays, 2nd & 3rd Saturdays, and HC gazette holidays.
+    """
     if d.weekday() == 6:          # Sunday
-        return False
+        return True
     if is_holiday_saturday(d):    # 2nd or 3rd Saturday
-        return False
-    return True
+        return True
+    if d in HC_HOLIDAYS_2026:     # gazette/vacation holiday
+        return True
+    return False
+
+def is_court_working_day(d):
+    return not is_court_holiday(d)
+
+def next_working_day(d):
+    """Return the next court working day after d (skips series of holidays)."""
+    d = d + timedelta(days=1)
+    while is_court_holiday(d):
+        d += timedelta(days=1)
+    return d
 
 def get_file_dates(list_type, upload_date):
     """
     Return list of candidate file_dates for a given upload_date and list type.
 
-    Confirmed offsets (from image):
-      Daily        : +2 days, skip weekend
-                     Mon→Wed, Tue→Thu, Wed→Fri, Thu→Mon, Fri→Mon, Sat→Mon
-                     Friday/Saturday also try Tuesday (+4/+3 days)
-      Supplementary: +1 day, skip weekend
-                     Mon→Tue, Tue→Wed, Wed→Thu, Thu→Fri, Fri→Mon, Sat→Mon
-      Weekly       : Monday of next week after upload Wednesday
+    Rules:
+      Daily        : file_date = upload_date + 2 calendar days, then advance
+                     past any holidays/weekends to next working day.
+                     Friday/Saturday: also try the Tuesday of next week.
+      Supplementary: file_date = upload_date + 1 calendar day, then advance
+                     past any holidays/weekends to next working day.
+      Weekly       : Monday of next week after upload Wednesday.
+
+    If the computed file_date is a holiday, it is pushed forward to the
+    next working day (handles series of consecutive holidays).
     """
     lt = list_type.upper()
 
-    def skip_to_monday(d):
-        """Push Saturday→Monday, Sunday→Monday."""
-        if d.weekday() == 6:
+    def advance_to_working(d):
+        """Push d forward until it lands on a court working day."""
+        while is_court_holiday(d):
             d += timedelta(days=1)
-        elif d.weekday() == 5:
-            d += timedelta(days=2)
         return d
 
     if "SUPPLEMENT" in lt:
         suffix     = "-SUP1"
-        fd         = skip_to_monday(upload_date + timedelta(days=1))
+        fd         = advance_to_working(upload_date + timedelta(days=1))
         file_dates = [fd]
 
     elif "WEEK" in lt:
@@ -123,16 +181,21 @@ def get_file_dates(list_type, upload_date):
 
     else:
         suffix     = ""
-        fd         = skip_to_monday(upload_date + timedelta(days=2))
+        fd         = advance_to_working(upload_date + timedelta(days=2))
         file_dates = [fd]
-        # Friday upload: also try Tuesday (+4 days: Fri→Tue)
+        # Friday upload: also try the next Tuesday (+4 days)
         if upload_date.weekday() == 4:
-            file_dates.append(upload_date + timedelta(days=4))
-        # Saturday upload: also try Tuesday (+3 days: Sat→Tue)
+            tue = advance_to_working(upload_date + timedelta(days=4))
+            if tue not in file_dates:
+                file_dates.append(tue)
+        # Saturday upload: also try the next Tuesday (+3 days)
         elif upload_date.weekday() == 5:
-            file_dates.append(upload_date + timedelta(days=3))
+            tue = advance_to_working(upload_date + timedelta(days=3))
+            if tue not in file_dates:
+                file_dates.append(tue)
 
     return suffix, file_dates
+
 
 
 def run_once(list_type):
