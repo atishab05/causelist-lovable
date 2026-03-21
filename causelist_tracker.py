@@ -29,11 +29,11 @@ RESULTS_JSON_PATH  = "results.json"   # committed back to repo after every run
 # Credentials — read from environment variables when running in the cloud,
 # fall back to hardcoded values when running locally on your PC.
 import os as _cred_os
-TWILIO_ACCOUNT_SID = _cred_os.environ.get("TWILIO_ACCOUNT_SID", "ACdaaaaab8004a7a18d3e9fa592aacf4df")
-TWILIO_AUTH_TOKEN  = _cred_os.environ.get("TWILIO_AUTH_TOKEN",  "e050e3a56824637506a4c3ed0c925223")
+TWILIO_ACCOUNT_SID = _cred_os.environ.get("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN  = _cred_os.environ.get("TWILIO_AUTH_TOKEN",  "")
 TWILIO_FROM        = "whatsapp:+14155238886"
-WHATSAPP_TO        = "whatsapp:" + _cred_os.environ.get("WHATSAPP_TO", "+919826474009")
-LAWYER_NAME        = _cred_os.environ.get("LAWYER_NAME", "SANJEEV BANJARE")
+WHATSAPP_TO        = "whatsapp:" + _cred_os.environ.get("WHATSAPP_TO", "")
+LAWYER_NAME        = _cred_os.environ.get("LAWYER_NAME", "")
 
 MAX_RETRIES  = 3
 RETRY_DELAY  = 15
