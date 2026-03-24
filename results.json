@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-03-23T21:04:10+05:30",
+  "updated_at": "2026-03-24T20:29:35+05:30",
   "runs": [
     {
       "list_type": "DAILY LIST",
@@ -23,8 +23,8 @@
     {
       "list_type": "WEEKLY LIST",
       "date_str": "23 Mar,2026",
-      "ran_at": "2026-03-23T21:04:10+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/30282285/causelist.pdf",
+      "ran_at": "2026-03-24T20:29:35+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/30444031/causelist.pdf",
       "pdf_pages": 141,
       "match_count": 1,
       "matches": [
@@ -118,6 +118,47 @@
       "ran_at": "2026-03-23T21:03:40+05:30",
       "pdf_url": "http://tmpfiles.org/dl/30282226/causelist.pdf",
       "pdf_pages": 53,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "27 Mar,2026",
+      "ran_at": "2026-03-24T20:28:51+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/30443937/causelist.pdf",
+      "pdf_pages": 161,
+      "match_count": 2,
+      "matches": [
+        {
+          "page": 15,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "6",
+          "case_no": "MCRC/2838/2026",
+          "purpose": "* {ON ADMISSION} (NDPS ACT) [RAIPUR] * {ON ADMISSION} [BILASPUR]"
+        },
+        {
+          "page": 15,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "7",
+          "case_no": "MCRC/2841/2026",
+          "purpose": "* {ON ADMISSION} [BILASPUR]"
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "25 Mar,2026",
+      "ran_at": "2026-03-24T20:29:09+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/30443974/causelist.pdf",
+      "pdf_pages": 52,
       "match_count": 0,
       "matches": []
     }
