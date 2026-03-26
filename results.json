@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-03-25T21:13:24+05:30",
+  "updated_at": "2026-03-26T20:35:54+05:30",
   "runs": [
     {
       "list_type": "DAILY LIST",
@@ -23,8 +23,8 @@
     {
       "list_type": "WEEKLY LIST",
       "date_str": "23 Mar,2026",
-      "ran_at": "2026-03-25T21:13:24+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/30611866/causelist.pdf",
+      "ran_at": "2026-03-26T20:35:54+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/30771222/causelist.pdf",
       "pdf_pages": 141,
       "match_count": 1,
       "matches": [
@@ -124,8 +124,8 @@
     {
       "list_type": "DAILY LIST",
       "date_str": "27 Mar,2026",
-      "ran_at": "2026-03-25T21:12:33+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/30611754/causelist.pdf",
+      "ran_at": "2026-03-26T20:35:05+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/30771126/causelist.pdf",
       "pdf_pages": 161,
       "match_count": 2,
       "matches": [
@@ -156,8 +156,8 @@
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "25 Mar,2026",
-      "ran_at": "2026-03-25T21:12:52+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/30611792/causelist.pdf",
+      "ran_at": "2026-03-26T20:35:24+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/30771164/causelist.pdf",
       "pdf_pages": 52,
       "match_count": 0,
       "matches": []
