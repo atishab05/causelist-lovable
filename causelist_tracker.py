@@ -272,7 +272,7 @@ def run_once(list_type, already_processed=None):
             print(f"  Skipping {list_type} for {date_str} — already processed")
             continue
 
-        if "WEEK" in list_type.upper():     ext = ".PDF" else:     ext = ".pdf"  filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}{ext}"
+        ext = ".PDF" if "WEEK" in list_type.upper() else ".pdf" filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}{ext}"
         url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
         print(f"  Trying {list_type}: {filename}  ({url})")
 
