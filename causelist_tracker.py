@@ -6,7 +6,7 @@ Downloads causelist PDFs directly using known URL patterns — no browser needed
 File naming (confirmed from live URLs):
   Daily List        : CG<DDMMYYYY>.pdf          e.g. CG19032026.pdf
   Supplementary List: CG<DDMMYYYY>-SUP1.pdf     e.g. CG18032026-SUP1.pdf  (date = upload day + 1)
-  Weekly List       : CG<DDMMYYYY>-WKL.pdf      e.g. CG16032026-WKL.pdf   (date = Wednesday of that week)
+  Weekly List       : CG<DDMMYYYY>-WKL.PDF       e.g. CG16032026-WKL.PDF    (date = Wednesday of that week)
 
 Setup:
   pip install pdfplumber requests twilio pytz
