@@ -6,7 +6,7 @@ Downloads causelist PDFs directly using known URL patterns — no browser needed
 File naming (confirmed from live URLs):
   Daily List        : CG<DDMMYYYY>.pdf          e.g. CG19032026.pdf
   Supplementary List: CG<DDMMYYYY>-SUP1.pdf     e.g. CG18032026-SUP1.pdf  (date = upload day + 1)
-  Weekly List       : CG<DDMMYYYY>-WKL.PDF       e.g. CG16032026-WKL.PDF    (date = Wednesday of that week)
+  Weekly List       : CG<DDMMYYYY>-WKL.pdf      e.g. CG16032026-WKL.pdf   (date = Wednesday of that week)
 
 Setup:
   pip install pdfplumber requests twilio pytz
@@ -198,21 +198,20 @@ def get_file_dates(list_type, upload_date):
 
 
 
-def run_once(list_type, already_processed=None):
+def find_all_available(list_type, already_processed=None):
     """
-    Download the causelist PDF for list_type using direct HTTP (no browser).
+    Find and download ALL available causelist PDFs for list_type.
 
-    NEW APPROACH (holiday-proof):
-      Instead of guessing upload dates and computing file dates from them,
-      directly generate candidate *file_dates* (hearing dates) and try each URL.
-      This handles pre-holiday uploads correctly — the HC uploads causelists for
-      future working days before a holiday, and file_date is always the hearing date.
+    Instead of returning on the first success, this probes every candidate
+    file_date and returns a list of all that are available.  This handles
+    pre-holiday scenarios where the HC uploads multiple causelists on the
+    same day (e.g. Apr 2 AND Apr 6 both available before Good Friday).
 
     Args:
         already_processed: set of date_str values already in results.json for this
                            list_type, so we can skip re-downloading them.
 
-    Returns (True, list_type, date_str, url) on success, (False,...) on failure.
+    Returns list of (list_type, date_str, url, pdf_bytes) for every available PDF.
     """
     today   = now_ist().date()
     headers = {
@@ -231,14 +230,11 @@ def run_once(list_type, already_processed=None):
 
     if "WEEK" in list_type.upper():
         suffix = "-WKL"
-        # Weekly lists: named by Monday of the hearing week
         current_monday = today - timedelta(days=today.weekday())
-        for week_offset in [1, 0, 2]:   # next week first, then this week, then +2
+        for week_offset in [1, 0, 2]:
             candidates.append(current_monday + timedelta(weeks=week_offset))
     else:
         suffix = "-SUP1" if "SUPPLEMENT" in list_type.upper() else ""
-        # Daily / Supplementary: try working days around today
-        # Future working days first (upcoming hearings), then a few past ones
         future = []
         d = today
         while len(future) < 7 and d <= today + timedelta(days=15):
@@ -263,33 +259,39 @@ def run_once(list_type, already_processed=None):
             seen.add(c)
             unique.append(c)
 
-    # ── Try each candidate URL ────────────────────────────────────────────────
+    # ── Probe each candidate URL ──────────────────────────────────────────────
+    found = []
     for file_date in unique:
         date_str = file_date.strftime("%d %b,%Y")
 
-        # Skip dates we already have in results.json
         if date_str in already_processed:
             print(f"  Skipping {list_type} for {date_str} — already processed")
             continue
 
-        ext = ".PDF" if "WEEK" in list_type.upper() else ".pdf" filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}{ext}"
-        url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
-        print(f"  Trying {list_type}: {filename}  ({url})")
+        base_name = f"CG{file_date.strftime('%d%m%Y')}{suffix}"
+        # HC server is case-sensitive: some files are .pdf, some .PDF
+        # Try lowercase first (most common), then uppercase as fallback
+        for ext in (".pdf", ".PDF"):
+            filename = f"{base_name}{ext}"
+            url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
+            print(f"  Trying {list_type}: {filename}  ({url})")
 
-        try:
-            resp = requests.get(url, headers=headers, timeout=30)
-            if resp.status_code == 200 and resp.content[:5].startswith(b"%PDF"):
-                with open(PDF_PATH, "wb") as f:
-                    f.write(resp.content)
-                print(f"  ✅ Downloaded {filename} ({len(resp.content)//1024} KB)")
-                return True, list_type, date_str, url
-            else:
-                print(f"     HTTP {resp.status_code} — not found")
-        except Exception as e:
-            print(f"     Error: {e}")
+            try:
+                resp = requests.get(url, headers=headers, timeout=30)
+                if resp.status_code == 200 and resp.content[:5].startswith(b"%PDF"):
+                    print(f"  ✅ Available {filename} ({len(resp.content)//1024} KB)")
+                    found.append((list_type, date_str, url, resp.content))
+                    break   # found with this extension, no need to try the other
+                else:
+                    print(f"     HTTP {resp.status_code} — not found")
+            except Exception as e:
+                print(f"     Error: {e}")
 
-    print(f"  ❌ Could not download {list_type} for any recent date.")
-    return False, list_type, None, None
+    if not found:
+        print(f"  ❌ No new {list_type} causelists found.")
+    else:
+        print(f"  📋 Found {len(found)} new {list_type} causelist(s)")
+    return found
 
 
 
@@ -713,39 +715,30 @@ for list_type in LIST_TYPES:
             used_list = list_type
             used_date = "cached"
             print(f"  SEARCH_ONLY mode — using existing {PDF_PATH}")
-            pdf_ok = True
+            # Parse, upload, WhatsApp for the cached file (single-file mode)
+            print(f"\n  Parsing PDF for '{LAWYER_NAME}' …")
+            matches, total_pages = parse_pdf(PDF_PATH, LAWYER_NAME)
+            if matches:
+                print(f"\n✅  Found in {len(matches)} case(s) [{list_type}]:\n")
+                for i, m in enumerate(matches, 1):
+                    print(f"  ── Case {i} | Page {m['page']} ────────────────────────────────────")
+                    for j in m["judges"]:
+                        print(f"  ⚖️   {j}")
+                    print(f"  🏛️   {m['court']}")
+                    print(f"  📋  {m['list_no']}")
+                    print(f"  SNo     : {m['sno']}")
+                    print(f"  Case No : {m['case_no']}")
+                    print(f"  Purpose : {m['purpose']}")
+                    print()
+            else:
+                print(f"\n❌  '{LAWYER_NAME}' not found in {list_type}.")
         else:
             print(f"  ❌ SEARCH_ONLY=True but {PDF_PATH} not found. Skipping.")
-            continue
-    else:
-        pdf_ok    = False
-        used_list = list_type
-        used_date = None
-        used_pdf_source_url = None
-        # Build set of already-processed date strings for this list type
-        # so we don't re-download and re-notify for the same causelist
-        already_processed = {
-            r["date_str"] for r in all_runs
-            if r.get("list_type") == list_type and r.get("date_str")
-        }
-        for attempt in range(1, MAX_RETRIES + 1):
-            print(f"  Attempt {attempt} / {MAX_RETRIES} …")
-            ok, lt_used, date_used, pdf_src = run_once(list_type, already_processed)
-            if ok:
-                pdf_ok    = True
-                used_date = date_used
-                used_pdf_source_url = pdf_src
-                break
-            if attempt < MAX_RETRIES:
-                print(f"  Waiting {RETRY_DELAY}s …")
-                time.sleep(RETRY_DELAY)
-
-        if not pdf_ok:
-            print(f"  ❌ Could not download {list_type}. Skipping.")
-            continue
+        continue
 
     # ── RAW_DEBUG ─────────────────────────────────────────────────────────────
     if RAW_DEBUG:
+        # In raw debug mode we still need to download one file first
         import pdfplumber as _plumber
         with _plumber.open(PDF_PATH) as _pdf:
             for _pg in DEBUG_PAGES:
@@ -755,86 +748,113 @@ for list_type in LIST_TYPES:
                     for _line in _text.splitlines():
                         marker = " <-- BANJARE" if "BANJARE" in _line.upper() else ""
                         print(f"  {_line!r}{marker}")
-        continue   # skip parse/send in RAW_DEBUG mode
-
-    # ── Parse ─────────────────────────────────────────────────────────────────
-    print(f"\n  Parsing PDF for '{LAWYER_NAME}' …")
-    matches, total_pages = parse_pdf(PDF_PATH, LAWYER_NAME)
-
-    if matches:
-        print(f"\n✅  Found in {len(matches)} case(s) [{list_type}]:\n")
-        for i, m in enumerate(matches, 1):
-            print(f"  ── Case {i} | Page {m['page']} ────────────────────────────────────")
-            for j in m["judges"]:
-                print(f"  ⚖️   {j}")
-            print(f"  🏛️   {m['court']}")
-            print(f"  📋  {m['list_no']}")
-            print(f"  SNo     : {m['sno']}")
-            print(f"  Case No : {m['case_no']}")
-            print(f"  Purpose : {m['purpose']}")
-            print()
-    else:
-        print(f"\n❌  '{LAWYER_NAME}' not found in {list_type}.")
-
-    # ── Upload PDF for public download link ───────────────────────────────────
-    print(f"\n  Uploading PDF …")
-    pdf_public_url = upload_pdf(PDF_PATH)
-
-    # ── Write results.json ────────────────────────────────────────────────────
-    run_entry = {
-        "list_type"  : list_type,
-        "date_str"   : used_date or "",
-        "ran_at"     : now_ist().strftime("%Y-%m-%dT%H:%M:%S+05:30"),
-        "pdf_url"    : pdf_public_url or used_pdf_source_url or "",
-        "pdf_pages"  : total_pages,
-        "match_count": len(matches),
-        "matches"    : matches,
-    }
-    replaced = False
-    for i, r in enumerate(all_runs):
-        if r.get("list_type") == list_type and r.get("date_str") == used_date:
-            all_runs[i] = run_entry
-            replaced = True
-            break
-    if not replaced:
-        all_runs.append(run_entry)
-    save_results_json(all_runs)
-
-    # ── WhatsApp ──────────────────────────────────────────────────────────────
-    if not WHATSAPP_ENABLED:
-        print("  WhatsApp disabled. Set WHATSAPP_ENABLED=true to send.")
         continue
 
-    prefix = LIST_PREFIX.get(used_list.upper(), used_list.title())
+    # ── Find ALL available causelists ─────────────────────────────────────────
+    already_processed = {
+        r["date_str"] for r in all_runs
+        if r.get("list_type") == list_type and r.get("date_str")
+    }
 
-    # Send PDF (already uploaded above)
-    if pdf_public_url:
-        print("  Sending PDF …")
-        try:
-            send_whatsapp_media(
-                twilio_client,
-                pdf_public_url,
-                f"📄 *{prefix} Causelist*\n{used_date} — Chhattisgarh High Court"
-            )
-        except Exception as e:
-            print(f"  ⚠️  PDF send failed: {e}")
+    available = []
+    for attempt in range(1, MAX_RETRIES + 1):
+        print(f"  Attempt {attempt} / {MAX_RETRIES} …")
+        available = find_all_available(list_type, already_processed)
+        if available:
+            break
+        if attempt < MAX_RETRIES:
+            print(f"  Waiting {RETRY_DELAY}s …")
+            time.sleep(RETRY_DELAY)
 
-    time.sleep(2)
+    if not available:
+        print(f"  ❌ Could not download {list_type}. Skipping.")
+        continue
 
-    # Send case entries
-    print("  Sending case entries …")
-    wa_text = format_entries_for_whatsapp(matches, LAWYER_NAME, used_list, used_date,
-                                          pdf_url=pdf_public_url)
-    try:
-        send_whatsapp_text(twilio_client, wa_text)
-    except Exception as e:
-        err = str(e)
-        if "exceeded" in err.lower() and "daily messages limit" in err.lower():
-            print(f"\n⚠️  Twilio daily limit reached. Upgrade at twilio.com.")
+    # ── Process EACH available causelist ───────────────────────────────────────
+    for pdf_idx, (lt_used, date_used, pdf_src, pdf_bytes) in enumerate(available):
+        print(f"\n  ── Processing {list_type} for {date_used} ({pdf_idx+1}/{len(available)}) ──")
+
+        # Save PDF to disk
+        with open(PDF_PATH, "wb") as f:
+            f.write(pdf_bytes)
+        print(f"  ✅ Saved {len(pdf_bytes)//1024} KB")
+
+        # ── Parse ─────────────────────────────────────────────────────────────
+        print(f"\n  Parsing PDF for '{LAWYER_NAME}' …")
+        matches, total_pages = parse_pdf(PDF_PATH, LAWYER_NAME)
+
+        if matches:
+            print(f"\n✅  Found in {len(matches)} case(s) [{list_type}]:\n")
+            for i, m in enumerate(matches, 1):
+                print(f"  ── Case {i} | Page {m['page']} ────────────────────────────────────")
+                for j in m["judges"]:
+                    print(f"  ⚖️   {j}")
+                print(f"  🏛️   {m['court']}")
+                print(f"  📋  {m['list_no']}")
+                print(f"  SNo     : {m['sno']}")
+                print(f"  Case No : {m['case_no']}")
+                print(f"  Purpose : {m['purpose']}")
+                print()
         else:
-            print(f"  ⚠️  WhatsApp send failed: {e}")
+            print(f"\n❌  '{LAWYER_NAME}' not found in {list_type} for {date_used}.")
 
-    time.sleep(3)   # pause between list types
+        # ── Upload PDF for public download link ──────────────────────────────
+        print(f"\n  Uploading PDF …")
+        pdf_public_url = upload_pdf(PDF_PATH)
+
+        # ── Write results.json ───────────────────────────────────────────────
+        run_entry = {
+            "list_type"  : list_type,
+            "date_str"   : date_used or "",
+            "ran_at"     : now_ist().strftime("%Y-%m-%dT%H:%M:%S+05:30"),
+            "pdf_url"    : pdf_public_url or pdf_src or "",
+            "pdf_pages"  : total_pages,
+            "match_count": len(matches),
+            "matches"    : matches,
+        }
+        replaced = False
+        for i, r in enumerate(all_runs):
+            if r.get("list_type") == list_type and r.get("date_str") == date_used:
+                all_runs[i] = run_entry
+                replaced = True
+                break
+        if not replaced:
+            all_runs.append(run_entry)
+        save_results_json(all_runs)
+
+        # ── WhatsApp ─────────────────────────────────────────────────────────
+        if not WHATSAPP_ENABLED:
+            print("  WhatsApp disabled. Set WHATSAPP_ENABLED=true to send.")
+            continue
+
+        prefix = LIST_PREFIX.get(lt_used.upper(), lt_used.title())
+
+        if pdf_public_url:
+            print("  Sending PDF …")
+            try:
+                send_whatsapp_media(
+                    twilio_client,
+                    pdf_public_url,
+                    f"📄 *{prefix} Causelist*\n{date_used} — Chhattisgarh High Court"
+                )
+            except Exception as e:
+                print(f"  ⚠️  PDF send failed: {e}")
+
+        time.sleep(2)
+
+        print("  Sending case entries …")
+        wa_text = format_entries_for_whatsapp(matches, LAWYER_NAME, lt_used, date_used,
+                                              pdf_url=pdf_public_url)
+        try:
+            send_whatsapp_text(twilio_client, wa_text)
+        except Exception as e:
+            err = str(e)
+            if "exceeded" in err.lower() and "daily messages limit" in err.lower():
+                print(f"\n⚠️  Twilio daily limit reached. Upgrade at twilio.com.")
+            else:
+                print(f"  ⚠️  WhatsApp send failed: {e}")
+
+        time.sleep(3)   # pause between causelists
 
 print(f"\n{'═'*55}")
 print(f"  ✅ All done!")
