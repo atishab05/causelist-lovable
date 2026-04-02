@@ -198,10 +198,20 @@ def get_file_dates(list_type, upload_date):
 
 
 
-def run_once(list_type):
+def run_once(list_type, already_processed=None):
     """
     Download the causelist PDF for list_type using direct HTTP (no browser).
-    Tries today and last 6 working days, using corrected file_date formula.
+
+    NEW APPROACH (holiday-proof):
+      Instead of guessing upload dates and computing file dates from them,
+      directly generate candidate *file_dates* (hearing dates) and try each URL.
+      This handles pre-holiday uploads correctly — the HC uploads causelists for
+      future working days before a holiday, and file_date is always the hearing date.
+
+    Args:
+        already_processed: set of date_str values already in results.json for this
+                           list_type, so we can skip re-downloading them.
+
     Returns (True, list_type, date_str, url) on success, (False,...) on failure.
     """
     today   = now_ist().date()
@@ -213,27 +223,57 @@ def run_once(list_type):
         "Accept"    : "application/pdf,*/*",
     }
 
-    # Build ordered list of (file_date, upload_date) pairs to try
-    # Most recent upload_date first; for each upload_date try all its file_dates
-    tried = set()
-    attempts = []
-    for days_back in range(7):
-        upload_date = today - timedelta(days=days_back)
-        if not is_court_working_day(upload_date):
+    if already_processed is None:
+        already_processed = set()
+
+    # ── Build candidate file_dates ────────────────────────────────────────────
+    candidates = []
+
+    if "WEEK" in list_type.upper():
+        suffix = "-WKL"
+        # Weekly lists: named by Monday of the hearing week
+        current_monday = today - timedelta(days=today.weekday())
+        for week_offset in [1, 0, 2]:   # next week first, then this week, then +2
+            candidates.append(current_monday + timedelta(weeks=week_offset))
+    else:
+        suffix = "-SUP1" if "SUPPLEMENT" in list_type.upper() else ""
+        # Daily / Supplementary: try working days around today
+        # Future working days first (upcoming hearings), then a few past ones
+        future = []
+        d = today
+        while len(future) < 7 and d <= today + timedelta(days=15):
+            if is_court_working_day(d):
+                future.append(d)
+            d += timedelta(days=1)
+
+        past = []
+        d = today - timedelta(days=1)
+        while len(past) < 5 and d >= today - timedelta(days=10):
+            if is_court_working_day(d):
+                past.append(d)
+            d -= timedelta(days=1)
+
+        candidates = future + past
+
+    # Deduplicate preserving order
+    seen = set()
+    unique = []
+    for c in candidates:
+        if c not in seen:
+            seen.add(c)
+            unique.append(c)
+
+    # ── Try each candidate URL ────────────────────────────────────────────────
+    for file_date in unique:
+        date_str = file_date.strftime("%d %b,%Y")
+
+        # Skip dates we already have in results.json
+        if date_str in already_processed:
+            print(f"  Skipping {list_type} for {date_str} — already processed")
             continue
-        suffix, file_dates = get_file_dates(list_type, upload_date)
-        for fd in file_dates:
-            if fd not in tried and is_court_working_day(fd):
-                tried.add(fd)
-                attempts.append((fd, suffix))
 
-    # Sort by file_date descending — try most upcoming first
-    attempts.sort(key=lambda x: x[0], reverse=True)
-
-    for file_date, suffix in attempts:
         filename = f"CG{file_date.strftime('%d%m%Y')}{suffix}.pdf"
         url      = f"https://highcourt.cg.gov.in/clists/causelists/pdf/{filename}"
-        date_str = file_date.strftime("%d %b,%Y")
         print(f"  Trying {list_type}: {filename}  ({url})")
 
         try:
@@ -682,9 +722,15 @@ for list_type in LIST_TYPES:
         used_list = list_type
         used_date = None
         used_pdf_source_url = None
+        # Build set of already-processed date strings for this list type
+        # so we don't re-download and re-notify for the same causelist
+        already_processed = {
+            r["date_str"] for r in all_runs
+            if r.get("list_type") == list_type and r.get("date_str")
+        }
         for attempt in range(1, MAX_RETRIES + 1):
             print(f"  Attempt {attempt} / {MAX_RETRIES} …")
-            ok, lt_used, date_used, pdf_src = run_once(list_type)
+            ok, lt_used, date_used, pdf_src = run_once(list_type, already_processed)
             if ok:
                 pdf_ok    = True
                 used_date = date_used
