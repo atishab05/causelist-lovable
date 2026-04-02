@@ -309,7 +309,97 @@ def find_all_available(list_type, already_processed=None):
 #          If the block contains the lawyer name → add to results.
 # ══════════════════════════════════════════════════════════════════════════════
 
-def parse_pdf(pdf_path, lawyer_name):
+def _clean_parser_line(line):
+    return re.sub(
+        r'\s*\(?\s*Live\s+Stream\s*[-\u2013]?\s*(Yes|No)\s*\)?',
+        '', line, flags=re.IGNORECASE
+    ).strip()
+
+
+def _should_skip_parser_line(line):
+    u = line.strip().upper()
+    t = line.strip()
+
+    if not t or t in ("-", "â€“", ".", ":", "[]"):
+        return True
+    if "BY ORDER OF" in u and "CHIEF JUSTICE" in u:
+        return True
+    if "THIS CAUSE LIST IS PUBLISHED" in u and "CHIEF JUSTICE" in u:
+        return True
+    if re.match(r'^SD/[-â€“]', u):
+        return True
+    if u == "PRINT":
+        return True
+    if re.match(r'^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)'
+                r'\s+THE\s+\d+', u):
+        return True
+    if "VC LINK" in u or t.startswith("[VC"):
+        return True
+    if re.match(r'^\[?DISCLAIMERS', u):
+        return True
+    if re.match(r'^\[?\s*\(I+\)', u):
+        return True
+    if "ARCHIVAL DATA" in u and "OFFICIAL RECORD" in u:
+        return True
+    if "UNLESS OTHERWISE DIRECTED BY THE JUDGE" in u:
+        return True
+    if re.match(r'^INFORMATION AND DISCLAIMER', u):
+        return True
+    if re.match(r'^S\s*NO\.?\s+CASE\s+NO\.?\s+PARTY', u):
+        return True
+    if re.match(r'^(DAILY|WEEKLY|SUPPLEMENTARY)\s+CAUSE\s+LIST\s+FOR\b', u):
+        return True
+    if re.match(r'^(FRESH MATTERS|OLD MATTERS|PART HEARD MATTERS'
+                r'|ADMISSION MATTERS|REGULAR HEARING)\s*$', u):
+        return True
+    return False
+
+
+def _build_visual_lines(page):
+    words = page.extract_words(
+        x_tolerance=2,
+        y_tolerance=2,
+        keep_blank_chars=False,
+        use_text_flow=False,
+    ) or []
+    if not words:
+        return []
+
+    words = sorted(words, key=lambda w: (float(w["top"]), float(w["x0"])))
+    rows = []
+    current = []
+    line_top = None
+
+    for word in words:
+        top = float(word["top"])
+        if current and line_top is not None and abs(top - line_top) > 4:
+            rows.append(current)
+            current = [word]
+            line_top = top
+        else:
+            current.append(word)
+            line_top = top if line_top is None else (line_top + top) / 2
+    if current:
+        rows.append(current)
+
+    visual_lines = []
+    for row in rows:
+        row = sorted(row, key=lambda w: float(w["x0"]))
+        text = " ".join(w["text"] for w in row).strip()
+        if not text:
+            continue
+        visual_lines.append({
+            "text": text,
+            "top": min(float(w["top"]) for w in row),
+            "bottom": max(float(w["bottom"]) for w in row),
+            "x0": min(float(w["x0"]) for w in row),
+            "x1": max(float(w["x1"]) for w in row),
+            "words": row,
+        })
+    return visual_lines
+
+
+def _parse_pdf_legacy(pdf_path, lawyer_name):
     """
     Simple two-pass parser:
     PASS 1 : Build flat line list, detect section headers (judges/court/list).
@@ -557,6 +647,234 @@ def parse_pdf(pdf_path, lawyer_name):
 
     flush(current_block, current_block_start)
     return results, total_pages
+
+
+def _parse_pdf_structured(pdf_path, lawyer_name):
+    name_upper = lawyer_name.upper()
+    honble_re = re.compile(r"HON['\u2018\u2019\u02bc]?BLE\b", re.IGNORECASE)
+    court_re = re.compile(r"COURT\s+NO\.", re.IGNORECASE)
+    list_no_re = re.compile(r"^\s*LIST\s*[-\u2013]\s*\d+", re.IGNORECASE)
+    sno_only_re = re.compile(r"^\s*(\d+)\.\s*$")
+    entry_line_re = re.compile(r"^\s*(\d+)\.\s")
+    case_no_re = re.compile(r"^[A-Z0-9./()-]+/\d{1,6}/\d{4}[A-Z0-9./()-]*$", re.IGNORECASE)
+
+    sections = []
+    all_lines = []
+    cases = []
+    total_pages = 0
+    pending_judges = []
+    pending_court = ""
+    current_case = None
+    active_template = None
+
+    def section_for_line(idx):
+        active = {"judges": ["Unknown"], "court": "Unknown", "list_no": "Unknown"}
+        for s in sections:
+            if s["line_idx"] <= idx:
+                active = s
+            else:
+                break
+        return active
+
+    def flush_case():
+        nonlocal current_case, active_template
+        if not current_case:
+            return
+
+        anchors = dict(active_template or {})
+        lane_parts = {"party_detail": [], "pet_advocate": [], "res_advocate": []}
+        purpose_lines = []
+        anchor_threshold = 55.0
+
+        for line in current_case["lines"]:
+            text = line["text"].strip()
+            if not text:
+                continue
+            if text.startswith("*") or text.startswith("["):
+                purpose_lines.append(text)
+                continue
+
+            fragments = []
+            current_words = []
+            for word in sorted(line["words"], key=lambda w: float(w["x0"])):
+                if not current_words:
+                    current_words = [word]
+                    continue
+                gap = float(word["x0"]) - float(current_words[-1]["x1"])
+                if gap > 28:
+                    fragments.append(current_words)
+                    current_words = [word]
+                else:
+                    current_words.append(word)
+            if current_words:
+                fragments.append(current_words)
+
+            pieces = []
+            for frag in fragments:
+                frag_text = " ".join(w["text"] for w in frag).strip()
+                if not frag_text:
+                    continue
+                pieces.append({
+                    "text": frag_text,
+                    "x0": float(frag[0]["x0"]),
+                })
+
+            if line["is_case_start"] and pieces:
+                if sno_only_re.match(pieces[0]["text"]):
+                    pieces = pieces[1:]
+                if pieces and case_no_re.match(pieces[0]["text"]):
+                    pieces = pieces[1:]
+
+            if not pieces:
+                continue
+
+            if len(pieces) >= 2:
+                anchors["party_detail"] = pieces[0]["x0"]
+                anchors["pet_advocate"] = pieces[1]["x0"]
+                if len(pieces) >= 3:
+                    anchors["res_advocate"] = pieces[2]["x0"]
+                active_template = dict(anchors)
+
+            for piece in pieces:
+                piece_text = piece["text"]
+                if piece_text.startswith("*") or piece_text.startswith("["):
+                    purpose_lines.append(piece_text)
+                    continue
+
+                lane = None
+                if re.search(r'\bVS\.?\b', piece_text, re.IGNORECASE):
+                    lane = "party_detail"
+                elif anchors:
+                    distances = {
+                        name: abs(piece["x0"] - anchor_x)
+                        for name, anchor_x in anchors.items()
+                    }
+                    lane = min(distances, key=distances.get)
+                    if distances[lane] > anchor_threshold:
+                        if "res_advocate" not in anchors and piece["x0"] > anchors.get("pet_advocate", 0) + 90:
+                            anchors["res_advocate"] = piece["x0"]
+                            lane = "res_advocate"
+                            active_template = dict(anchors)
+                        elif "pet_advocate" not in anchors and piece["x0"] > anchors.get("party_detail", 0) + 90:
+                            anchors["pet_advocate"] = piece["x0"]
+                            lane = "pet_advocate"
+                            active_template = dict(anchors)
+
+                if lane is None:
+                    if not lane_parts["party_detail"]:
+                        lane = "party_detail"
+                    elif not lane_parts["pet_advocate"]:
+                        lane = "pet_advocate"
+                        anchors.setdefault("pet_advocate", piece["x0"])
+                    else:
+                        lane = "res_advocate"
+                        anchors.setdefault("res_advocate", piece["x0"])
+                    active_template = dict(anchors)
+
+                lane_parts[lane].append(piece_text)
+
+        combined_text = " ".join(
+            lane_parts["party_detail"]
+            + lane_parts["pet_advocate"]
+            + lane_parts["res_advocate"]
+            + purpose_lines
+        )
+        if name_upper in combined_text.upper():
+            sec = section_for_line(current_case["start_idx"])
+            cases.append({
+                "page": current_case["page"],
+                "judges": sec["judges"],
+                "court": sec["court"],
+                "list_no": sec["list_no"],
+                "sno": current_case["sno"],
+                "case_no": current_case["case_no"],
+                "purpose": " ".join(purpose_lines).strip(),
+                "party_detail": " ".join(lane_parts["party_detail"]).strip(),
+                "pet_advocate": " ".join(lane_parts["pet_advocate"]).strip(),
+                "res_advocate": " ".join(lane_parts["res_advocate"]).strip(),
+            })
+        current_case = None
+
+    with pdfplumber.open(pdf_path) as pdf:
+        total_pages = len(pdf.pages)
+        print(f"  Total pages: {total_pages}")
+        for page_num, page in enumerate(pdf.pages, start=1):
+            visual_lines = _build_visual_lines(page)
+            for line in visual_lines:
+                line["text"] = _clean_parser_line(line["text"])
+                if not line["text"]:
+                    continue
+                line["page"] = page_num
+                line["is_case_start"] = False
+
+                if not _should_skip_parser_line(line["text"]):
+                    idx = len(all_lines)
+                    all_lines.append({"page": page_num, "text": line["text"]})
+                    s = line["text"]
+                    if honble_re.search(s):
+                        upper_s = s.upper()
+                        if "TIED UP" not in upper_s and "EXCEPTION" not in upper_s:
+                            pending_judges.append(s)
+                    elif court_re.search(s):
+                        pending_court = s
+                    elif "CHIEF JUSTICE" in s.upper() and "COURT" in s.upper():
+                        pending_court = s
+                    elif list_no_re.match(s):
+                        if not pending_court and any(
+                                "CHIEF JUSTICE" in j.upper() for j in pending_judges):
+                            pending_court = "THE CHIEF JUSTICE'S COURT"
+                        sections.append({
+                            "line_idx": idx,
+                            "judges": list(pending_judges) or ["Unknown"],
+                            "court": pending_court or "Unknown",
+                            "list_no": s,
+                        })
+                        pending_judges = []
+                        pending_court = ""
+                    elif pending_judges and not pending_court and entry_line_re.match(line["text"]):
+                        pending_judges = []
+                        pending_court = ""
+
+                row_words = sorted(line["words"], key=lambda w: float(w["x0"]))
+                if len(row_words) >= 2:
+                    left_word = row_words[0]["text"].strip()
+                    case_word = row_words[1]["text"].strip()
+                    is_case_start = (
+                        sno_only_re.match(left_word)
+                        and case_no_re.match(case_word)
+                        and float(row_words[0]["x0"]) < page.width * 0.12
+                        and float(row_words[1]["x0"]) < page.width * 0.32
+                    )
+                    if is_case_start:
+                        flush_case()
+                        line["is_case_start"] = True
+                        current_case = {
+                            "page": page_num,
+                            "start_idx": max(len(all_lines) - 1, 0),
+                            "sno": left_word.rstrip("."),
+                            "case_no": case_word,
+                            "lines": [line],
+                        }
+                        continue
+
+                if current_case:
+                    current_case["lines"].append(line)
+
+        flush_case()
+
+    return cases, total_pages
+
+
+def parse_pdf(pdf_path, lawyer_name):
+    try:
+        results, total_pages = _parse_pdf_structured(pdf_path, lawyer_name)
+        if results:
+            return results, total_pages
+        print("  Structured parser found no lawyer matches; falling back to legacy parser.")
+    except Exception as e:
+        print(f"  Structured parser failed: {e}")
+        print("  Falling back to legacy parser.")
+    return _parse_pdf_legacy(pdf_path, lawyer_name)
 
 
 def upload_pdf(pdf_path):
