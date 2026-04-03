@@ -1,9 +1,9 @@
 # Chhattisgarh High Court – Causelist Tracker
 # Runs automatically at IST upload times (converted to UTC):
 #
-#   Daily List        → 17:30 IST = 12:00 UTC  (Mon–Sat)
-#   Supplementary List→ 18:30 IST = 13:00 UTC  (Mon–Sat)
-#   Weekly List       → 17:30 IST = 12:00 UTC  (Wednesday only)
+#   Daily List         -> 19:30 IST = 14:00 UTC  (Mon-Sat)
+#   Supplementary List -> 20:00 IST = 14:30 UTC  (Mon-Sat)
+#   Weekly List        -> 19:30 IST = 14:00 UTC  (Wednesday only)
 #
 # Each run retries up to 3 times if the PDF is not yet uploaded.
 
