@@ -232,7 +232,13 @@ def find_all_available(list_type, already_processed=None):
         suffix = "-WKL"
         current_monday = today - timedelta(days=today.weekday())
         for week_offset in [1, 0, 2]:
-            candidates.append(current_monday + timedelta(weeks=week_offset))
+            raw_monday = current_monday + timedelta(weeks=week_offset)
+            # Advance past gazette holidays / non-working days to the next
+            # working day — mirrors get_file_dates() logic for Daily/Suppl.
+            file_date = raw_monday
+            while is_court_holiday(file_date):
+                file_date += timedelta(days=1)
+            candidates.append(file_date)
     else:
         suffix = "-SUP1" if "SUPPLEMENT" in list_type.upper() else ""
         future = []
