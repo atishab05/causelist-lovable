@@ -692,6 +692,12 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
         purpose_lines = []
         anchor_threshold = 55.0
 
+        # Regex to detect Live Stream annotation words so they can be
+        # excluded from word-level gap analysis inside flush_case().
+        live_stream_re = re.compile(
+            r'^(\(Live|Live|Stream|[-\u2013]|Yes\)?|No\)?)$', re.IGNORECASE
+        )
+
         for line in current_case["lines"]:
             text = line["text"].strip()
             if not text:
@@ -700,9 +706,19 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 purpose_lines.append(text)
                 continue
 
+            # Filter out Live Stream annotation words before gap-splitting.
+            # line["text"] was already cleaned by _clean_parser_line, but
+            # line["words"] still contains the raw word objects — we must
+            # exclude them here so they don't create a spurious fragment that
+            # shifts all column assignments one lane to the right.
+            clean_words = [
+                w for w in line["words"]
+                if not live_stream_re.match(w["text"].strip())
+            ]
+
             fragments = []
             current_words = []
-            for word in sorted(line["words"], key=lambda w: float(w["x0"])):
+            for word in sorted(clean_words, key=lambda w: float(w["x0"])):
                 if not current_words:
                     current_words = [word]
                     continue
@@ -726,19 +742,29 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 })
 
             if line["is_case_start"] and pieces:
+                # Strip SNo fragment (e.g. "22.")
                 if sno_only_re.match(pieces[0]["text"]):
                     pieces = pieces[1:]
+                # Strip CaseNo fragment (e.g. "WPS/5275/2016")
                 if pieces and case_no_re.match(pieces[0]["text"]):
                     pieces = pieces[1:]
 
             if not pieces:
                 continue
 
-            if len(pieces) >= 2:
+            # Update column anchors only when we can see all 3 data columns
+            # on the same row.  Firing on partial rows (1-2 pieces) would
+            # corrupt anchors and mis-assign names on subsequent rows.
+            if len(pieces) >= 3:
                 anchors["party_detail"] = pieces[0]["x0"]
                 anchors["pet_advocate"] = pieces[1]["x0"]
-                if len(pieces) >= 3:
-                    anchors["res_advocate"] = pieces[2]["x0"]
+                anchors["res_advocate"] = pieces[2]["x0"]
+                active_template = dict(anchors)
+            elif len(pieces) == 2 and not anchors:
+                # First row has only 2 visible columns (res column empty) --
+                # learn party_detail and pet_advocate so later rows work.
+                anchors["party_detail"] = pieces[0]["x0"]
+                anchors["pet_advocate"] = pieces[1]["x0"]
                 active_template = dict(anchors)
 
             for piece in pieces:
