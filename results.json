@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-02T20:27:01+05:30",
+  "updated_at": "2026-04-04T09:23:53+05:30",
   "runs": [
     {
       "list_type": "SUPPLEMENTARY LIST",
@@ -245,6 +245,48 @@
       "pdf_pages": 170,
       "match_count": 0,
       "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "07 Apr,2026",
+      "ran_at": "2026-04-04T09:22:30+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32002410/causelist.pdf",
+      "pdf_pages": 191,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "02 Apr,2026",
+      "ran_at": "2026-04-04T09:23:20+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32002473/causelist.pdf",
+      "pdf_pages": 54,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "WEEKLY LIST",
+      "date_str": "06 Apr,2026",
+      "ran_at": "2026-04-04T09:23:53+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32002500/causelist.pdf",
+      "pdf_pages": 139,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 95,
+          "judges": [
+            "HON'BLE SHRI JUSTICE RAVINDRA KUMAR AGRAWAL"
+          ],
+          "court": "COURT NO. \"3\"",
+          "list_no": "LIST – 3 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH - I LIST WHICHEVER IS",
+          "sno": "22",
+          "case_no": "WPS/5275/2016",
+          "purpose": "* [ FOR FINAL HEARING ] [ C.O. MONTH OF JANUARY, 2026 ] []",
+          "party_detail": "22. WPS/5275/2016 (Live Stream - No) VS. STATE OF CHHATTISGARH AND 6 OTHERS SANJEEV BANJARE WASIM MIYAN",
+          "pet_advocate": "SMT. ANITA MUDLIYAR DAVE INDIRA TRIPATHI VIVEK KUMAR TRIPATHI AVINASH SINGH SANGHARSH PANDEY",
+          "res_advocate": "AWADH TRIPATHI A.G. SHALEEN SINGH BAGHEL"
+        }
+      ]
     }
   ]
 }
