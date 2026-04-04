@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-04T15:26:48+05:30",
+  "updated_at": "2026-04-04T19:30:48+05:30",
   "runs": [
     {
       "list_type": "SUPPLEMENTARY LIST",
@@ -296,6 +296,15 @@
           "res_advocate": "AWADH TRIPATHI A.G. SHALEEN SINGH BAGHEL"
         }
       ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "06 Apr,2026",
+      "ran_at": "2026-04-04T19:30:48+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32056624/causelist.pdf",
+      "pdf_pages": 60,
+      "match_count": 0,
+      "matches": []
     }
   ]
 }
