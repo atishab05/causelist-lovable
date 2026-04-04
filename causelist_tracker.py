@@ -32,7 +32,13 @@ import os as _cred_os
 TWILIO_ACCOUNT_SID = _cred_os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN  = _cred_os.environ.get("TWILIO_AUTH_TOKEN",  "")
 TWILIO_FROM        = "whatsapp:+14155238886"
+# Multiple recipients: WHATSAPP_TO is the primary number (from env var / GitHub secret).
+# WHATSAPP_TO_EXTRA lists any additional hard-coded numbers to always notify.
 WHATSAPP_TO        = "whatsapp:" + _cred_os.environ.get("WHATSAPP_TO", "")
+WHATSAPP_TO_EXTRA  = ["whatsapp:+919109188338"]   # Atisha's number
+WHATSAPP_RECIPIENTS = (
+    [WHATSAPP_TO] if WHATSAPP_TO != "whatsapp:" else []
+) + WHATSAPP_TO_EXTRA
 LAWYER_NAME        = _cred_os.environ.get("LAWYER_NAME", "")
 
 MAX_RETRIES  = 3
@@ -687,16 +693,32 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
         if not current_case:
             return
 
-        anchors = dict(active_template or {})
         lane_parts = {"party_detail": [], "pet_advocate": [], "res_advocate": []}
         purpose_lines = []
-        anchor_threshold = 55.0
 
-        # Regex to detect Live Stream annotation words so they can be
-        # excluded from word-level gap analysis inside flush_case().
+        # Live Stream annotation words — filtered out before column assignment.
         live_stream_re = re.compile(
             r'^(\(Live|Live|Stream|[-\u2013]|Yes\)?|No\)?)$', re.IGNORECASE
         )
+
+        # Column assignment uses x-position as a percentage of page width.
+        # Derived from coordinate dump of the actual causelist PDF:
+        #   Col1 SNo          ~6%   Col2 CaseNo    ~10%
+        #   Col3 Party Detail ~27%  Col4 Pet Adv   ~58%  Col5 Res Adv ~76%
+        #
+        # Thresholds (validated against 32 words across 4 cases):
+        #   x_pct <  20%  → SNo / CaseNo     → skip
+        #   20% <= x_pct < 55%  → party_detail  (generous: covers wide party text up to ~52%)
+        #   55% <= x_pct < 72%  → pet_advocate
+        #   x_pct >= 72%        → res_advocate
+        page_width = current_case.get("page_width", 596.0)
+
+        def classify_word(x0):
+            pct = x0 / page_width * 100
+            if pct < 20:   return None            # SNo / CaseNo column — skip
+            if pct < 55:   return "party_detail"
+            if pct < 72:   return "pet_advocate"
+            return "res_advocate"
 
         for line in current_case["lines"]:
             text = line["text"].strip()
@@ -706,104 +728,18 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 purpose_lines.append(text)
                 continue
 
-            # Filter out Live Stream annotation words before gap-splitting.
-            # line["text"] was already cleaned by _clean_parser_line, but
-            # line["words"] still contains the raw word objects — we must
-            # exclude them here so they don't create a spurious fragment that
-            # shifts all column assignments one lane to the right.
-            clean_words = [
-                w for w in line["words"]
-                if not live_stream_re.match(w["text"].strip())
-            ]
-
-            fragments = []
-            current_words = []
-            for word in sorted(clean_words, key=lambda w: float(w["x0"])):
-                if not current_words:
-                    current_words = [word]
+            # Assign every word individually by x-position, skipping Live Stream.
+            row_lane_words = {"party_detail": [], "pet_advocate": [], "res_advocate": []}
+            for word in sorted(line["words"], key=lambda w: float(w["x0"])):
+                if live_stream_re.match(word["text"].strip()):
                     continue
-                gap = float(word["x0"]) - float(current_words[-1]["x1"])
-                if gap > 28:
-                    fragments.append(current_words)
-                    current_words = [word]
-                else:
-                    current_words.append(word)
-            if current_words:
-                fragments.append(current_words)
+                lane = classify_word(float(word["x0"]))
+                if lane:
+                    row_lane_words[lane].append(word["text"])
 
-            pieces = []
-            for frag in fragments:
-                frag_text = " ".join(w["text"] for w in frag).strip()
-                if not frag_text:
-                    continue
-                pieces.append({
-                    "text": frag_text,
-                    "x0": float(frag[0]["x0"]),
-                })
-
-            if line["is_case_start"] and pieces:
-                # Strip SNo fragment (e.g. "22.")
-                if sno_only_re.match(pieces[0]["text"]):
-                    pieces = pieces[1:]
-                # Strip CaseNo fragment (e.g. "WPS/5275/2016")
-                if pieces and case_no_re.match(pieces[0]["text"]):
-                    pieces = pieces[1:]
-
-            if not pieces:
-                continue
-
-            # Update column anchors only when we can see all 3 data columns
-            # on the same row.  Firing on partial rows (1-2 pieces) would
-            # corrupt anchors and mis-assign names on subsequent rows.
-            if len(pieces) >= 3:
-                anchors["party_detail"] = pieces[0]["x0"]
-                anchors["pet_advocate"] = pieces[1]["x0"]
-                anchors["res_advocate"] = pieces[2]["x0"]
-                active_template = dict(anchors)
-            elif len(pieces) == 2 and not anchors:
-                # First row has only 2 visible columns (res column empty) --
-                # learn party_detail and pet_advocate so later rows work.
-                anchors["party_detail"] = pieces[0]["x0"]
-                anchors["pet_advocate"] = pieces[1]["x0"]
-                active_template = dict(anchors)
-
-            for piece in pieces:
-                piece_text = piece["text"]
-                if piece_text.startswith("*") or piece_text.startswith("["):
-                    purpose_lines.append(piece_text)
-                    continue
-
-                lane = None
-                if re.search(r'\bVS\.?\b', piece_text, re.IGNORECASE):
-                    lane = "party_detail"
-                elif anchors:
-                    distances = {
-                        name: abs(piece["x0"] - anchor_x)
-                        for name, anchor_x in anchors.items()
-                    }
-                    lane = min(distances, key=distances.get)
-                    if distances[lane] > anchor_threshold:
-                        if "res_advocate" not in anchors and piece["x0"] > anchors.get("pet_advocate", 0) + 90:
-                            anchors["res_advocate"] = piece["x0"]
-                            lane = "res_advocate"
-                            active_template = dict(anchors)
-                        elif "pet_advocate" not in anchors and piece["x0"] > anchors.get("party_detail", 0) + 90:
-                            anchors["pet_advocate"] = piece["x0"]
-                            lane = "pet_advocate"
-                            active_template = dict(anchors)
-
-                if lane is None:
-                    if not lane_parts["party_detail"]:
-                        lane = "party_detail"
-                    elif not lane_parts["pet_advocate"]:
-                        lane = "pet_advocate"
-                        anchors.setdefault("pet_advocate", piece["x0"])
-                    else:
-                        lane = "res_advocate"
-                        anchors.setdefault("res_advocate", piece["x0"])
-                    active_template = dict(anchors)
-
-                lane_parts[lane].append(piece_text)
+            for lane, words in row_lane_words.items():
+                if words:
+                    lane_parts[lane].append(" ".join(words))
 
         combined_text = " ".join(
             lane_parts["party_detail"]
@@ -885,6 +821,7 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                             "start_idx": max(len(all_lines) - 1, 0),
                             "sno": left_word.rstrip("."),
                             "case_no": case_word,
+                            "page_width": page.width,
                             "lines": [line],
                         }
                         continue
@@ -988,18 +925,24 @@ def save_results_json(all_runs):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def send_whatsapp_text(client, body):
+    """Send text message to all recipients in WHATSAPP_RECIPIENTS."""
     chunks = [body[i:i+1500] for i in range(0, len(body), 1500)]
-    for i, chunk in enumerate(chunks, 1):
-        msg = client.messages.create(
-            from_=TWILIO_FROM, to=WHATSAPP_TO, body=chunk)
-        print(f"  ✅ Text chunk {i}/{len(chunks)}  SID={msg.sid}")
-        time.sleep(1)
+    for recipient in WHATSAPP_RECIPIENTS:
+        print(f"  → Sending to {recipient} …")
+        for i, chunk in enumerate(chunks, 1):
+            msg = client.messages.create(
+                from_=TWILIO_FROM, to=recipient, body=chunk)
+            print(f"    ✅ Text chunk {i}/{len(chunks)}  SID={msg.sid}")
+            time.sleep(1)
 
 def send_whatsapp_media(client, media_url, caption):
-    msg = client.messages.create(
-        from_=TWILIO_FROM, to=WHATSAPP_TO,
-        body=caption, media_url=[media_url])
-    print(f"  ✅ Media sent  SID={msg.sid}")
+    """Send media message to all recipients in WHATSAPP_RECIPIENTS."""
+    for recipient in WHATSAPP_RECIPIENTS:
+        print(f"  → Sending PDF to {recipient} …")
+        msg = client.messages.create(
+            from_=TWILIO_FROM, to=recipient,
+            body=caption, media_url=[media_url])
+        print(f"    ✅ Media sent  SID={msg.sid}")
 
 def format_entries_for_whatsapp(matches, lawyer_name, list_type, date_str,
                                       pdf_url=None):
