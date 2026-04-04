@@ -1003,16 +1003,26 @@ def format_entries_for_whatsapp(matches, lawyer_name, list_type, date_str,
 
     for i, m in enumerate(matches, 1):
         judge_str = "\n   ".join(m["judges"])
-        lines += [
+        entry = [
             f"\n*Case {i}  (Page {m['page']})*",
             f"⚖️  {judge_str}",
             f"🏛️  {m['court']}",
             f"📋  {m['list_no']}",
-            f"• *SNo*     : {m['sno']}",
-            f"• *Case No* : {m['case_no']}",
-            f"• *Purpose* : {m['purpose']}",
+            f"• *SNo*          : {m['sno']}",
+            f"• *Case No*      : {m['case_no']}",
+        ]
+        # Include structured fields only when present (structured parser)
+        if m.get("party_detail"):
+            entry.append(f"• *Party Detail* : {m['party_detail']}")
+        if m.get("pet_advocate"):
+            entry.append(f"• *Pet Advocate* : {m['pet_advocate']}")
+        if m.get("res_advocate"):
+            entry.append(f"• *Res Advocate* : {m['res_advocate']}")
+        entry += [
+            f"• *Purpose*      : {m['purpose']}",
             "─" * 35,
         ]
+        lines += entry
     return "\n".join(lines)
 
 
