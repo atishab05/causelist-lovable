@@ -691,6 +691,19 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
         lane_parts = {"party_detail": [], "pet_advocate": [], "res_advocate": []}
         purpose_lines = []
         anchor_threshold = 55.0
+        column_start_threshold = 18.0
+
+        def anchor_lane_for_x(x0):
+            if not anchors:
+                return None
+            snapped = [
+                (name, abs(x0 - ax))
+                for name, ax in anchors.items()
+                if abs(x0 - ax) <= column_start_threshold
+            ]
+            if not snapped:
+                return None
+            return min(snapped, key=lambda item: item[1])[0]
 
         # Regex to detect Live Stream annotation words so they can be
         # excluded from word-level gap analysis inside flush_case().
@@ -718,27 +731,41 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
 
             fragments = []
             current_words = []
+            current_lane_hint = None
             for word in sorted(clean_words, key=lambda w: float(w["x0"])):
+                word_x0 = float(word["x0"])
+                snapped_lane = anchor_lane_for_x(word_x0)
                 if not current_words:
                     current_words = [word]
+                    current_lane_hint = snapped_lane
                     continue
-                gap = float(word["x0"]) - float(current_words[-1]["x1"])
-                if gap > 28:
-                    fragments.append(current_words)
+
+                gap = word_x0 - float(current_words[-1]["x1"])
+                should_split = gap > 28
+
+                if not should_split and snapped_lane and current_lane_hint and snapped_lane != current_lane_hint:
+                    should_split = True
+
+                if should_split:
+                    fragments.append((current_words, current_lane_hint))
                     current_words = [word]
+                    current_lane_hint = snapped_lane
                 else:
                     current_words.append(word)
+                    if current_lane_hint is None and snapped_lane is not None:
+                        current_lane_hint = snapped_lane
             if current_words:
-                fragments.append(current_words)
+                fragments.append((current_words, current_lane_hint))
 
             pieces = []
-            for frag in fragments:
+            for frag, lane_hint in fragments:
                 frag_text = " ".join(w["text"] for w in frag).strip()
                 if not frag_text:
                     continue
                 pieces.append({
                     "text": frag_text,
                     "x0": float(frag[0]["x0"]),
+                    "lane_hint": lane_hint,
                 })
 
             if line["is_case_start"] and pieces:
@@ -775,10 +802,10 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                     purpose_lines.append(piece_text)
                     continue
 
-                lane = None
-                if re.search(r'\bVS\.?\b', piece_text, re.IGNORECASE):
+                lane = piece.get("lane_hint")
+                if lane is None and re.search(r'\bVS\.?\b', piece_text, re.IGNORECASE):
                     lane = "party_detail"
-                elif anchors:
+                elif lane is None and anchors:
                     cand_lanes = []
                     for name, ax in anchors.items():
                         if piece["x0"] >= ax - 15:
