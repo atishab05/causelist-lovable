@@ -281,30 +281,6 @@
       "pdf_pages": 60,
       "match_count": 0,
       "matches": []
-    },
-    {
-      "list_type": "WEEKLY LIST",
-      "date_str": "06 Apr,2026",
-      "ran_at": "2026-04-05T23:01:29+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32223595/causelist.pdf",
-      "pdf_pages": 139,
-      "match_count": 1,
-      "matches": [
-        {
-          "page": 95,
-          "judges": [
-            "HON'BLE SHRI JUSTICE RAVINDRA KUMAR AGRAWAL"
-          ],
-          "court": "COURT NO. \"3\"",
-          "list_no": "LIST – 3 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH - I LIST WHICHEVER IS",
-          "sno": "22",
-          "case_no": "WPS/5275/2016",
-          "purpose": "* [ FOR FINAL HEARING ] [ C.O. MONTH OF JANUARY, 2026 ] []",
-          "party_detail": "SMT. ANITA MUDLIYAR DAVE VS. STATE OF CHHATTISGARH AND 6 OTHERS",
-          "pet_advocate": "AWADH TRIPATHI INDIRA TRIPATHI VIVEK KUMAR TRIPATHI AVINASH SINGH SANJEEV BANJARE WASIM MIYAN",
-          "res_advocate": "A.G. SHALEEN SINGH BAGHEL SANGHARSH PANDEY"
-        }
-      ]
     }
   ]
 }
