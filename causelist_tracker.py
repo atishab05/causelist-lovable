@@ -692,6 +692,12 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
         purpose_lines = []
         anchor_threshold = 55.0
 
+        # Regex to detect Live Stream annotation words so they can be
+        # excluded from word-level gap analysis inside flush_case().
+        live_stream_re = re.compile(
+            r'^(\(Live|Live|Stream|[-\u2013]|Yes\)?|No\)?)$', re.IGNORECASE
+        )
+
         for line in current_case["lines"]:
             text = line["text"].strip()
             if not text:
@@ -700,9 +706,19 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 purpose_lines.append(text)
                 continue
 
+            # Filter out Live Stream annotation words before gap-splitting.
+            # line["text"] was already cleaned by _clean_parser_line, but
+            # line["words"] still contains the raw word objects — we must
+            # exclude them here so they don't create a spurious fragment that
+            # shifts all column assignments one lane to the right.
+            clean_words = [
+                w for w in line["words"]
+                if not live_stream_re.match(w["text"].strip())
+            ]
+
             fragments = []
             current_words = []
-            for word in sorted(line["words"], key=lambda w: float(w["x0"])):
+            for word in sorted(clean_words, key=lambda w: float(w["x0"])):
                 if not current_words:
                     current_words = [word]
                     continue
@@ -726,19 +742,31 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 })
 
             if line["is_case_start"] and pieces:
-                if sno_only_re.match(pieces[0]["text"]):
+                # Strip SNo and CaseNo safely to prevent merging into party details
+                text_zero = pieces[0]["text"]
+                if current_case["case_no"] in text_zero:
                     pieces = pieces[1:]
-                if pieces and case_no_re.match(pieces[0]["text"]):
+                elif sno_only_re.match(text_zero):
                     pieces = pieces[1:]
+                    if pieces and current_case["case_no"] in pieces[0]["text"]:
+                        pieces = pieces[1:]
 
             if not pieces:
                 continue
 
-            if len(pieces) >= 2:
+            # Update column anchors only when we can see all 3 data columns
+            # on the same row.  Firing on partial rows (1-2 pieces) would
+            # corrupt anchors and mis-assign names on subsequent rows.
+            if len(pieces) >= 3:
                 anchors["party_detail"] = pieces[0]["x0"]
                 anchors["pet_advocate"] = pieces[1]["x0"]
-                if len(pieces) >= 3:
-                    anchors["res_advocate"] = pieces[2]["x0"]
+                anchors["res_advocate"] = pieces[2]["x0"]
+                active_template = dict(anchors)
+            elif len(pieces) == 2 and not anchors:
+                # First row has only 2 visible columns (res column empty) --
+                # learn party_detail and pet_advocate so later rows work.
+                anchors["party_detail"] = pieces[0]["x0"]
+                anchors["pet_advocate"] = pieces[1]["x0"]
                 active_template = dict(anchors)
 
             for piece in pieces:
@@ -751,12 +779,18 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 if re.search(r'\bVS\.?\b', piece_text, re.IGNORECASE):
                     lane = "party_detail"
                 elif anchors:
-                    distances = {
-                        name: abs(piece["x0"] - anchor_x)
-                        for name, anchor_x in anchors.items()
-                    }
-                    lane = min(distances, key=distances.get)
-                    if distances[lane] > anchor_threshold:
+                    cand_lanes = []
+                    for name, ax in anchors.items():
+                        if piece["x0"] >= ax - 15:
+                            cand_lanes.append((name, ax))
+                    
+                    if cand_lanes:
+                        lane = max(cand_lanes, key=lambda kv: kv[1])[0]
+                    else:
+                        distances = {name: abs(piece["x0"] - ax) for name, ax in anchors.items()}
+                        lane = min(distances, key=distances.get)
+
+                    if abs(piece["x0"] - anchors[lane]) > anchor_threshold:
                         if "res_advocate" not in anchors and piece["x0"] > anchors.get("pet_advocate", 0) + 90:
                             anchors["res_advocate"] = piece["x0"]
                             lane = "res_advocate"
@@ -1003,16 +1037,26 @@ def format_entries_for_whatsapp(matches, lawyer_name, list_type, date_str,
 
     for i, m in enumerate(matches, 1):
         judge_str = "\n   ".join(m["judges"])
-        lines += [
+        entry = [
             f"\n*Case {i}  (Page {m['page']})*",
             f"⚖️  {judge_str}",
             f"🏛️  {m['court']}",
             f"📋  {m['list_no']}",
-            f"• *SNo*     : {m['sno']}",
-            f"• *Case No* : {m['case_no']}",
-            f"• *Purpose* : {m['purpose']}",
+            f"• *SNo*          : {m['sno']}",
+            f"• *Case No*      : {m['case_no']}",
+        ]
+        # Include structured fields only when present (structured parser)
+        if m.get("party_detail"):
+            entry.append(f"• *Party Detail* : {m['party_detail']}")
+        if m.get("pet_advocate"):
+            entry.append(f"• *Pet Advocate* : {m['pet_advocate']}")
+        if m.get("res_advocate"):
+            entry.append(f"• *Res Advocate* : {m['res_advocate']}")
+        entry += [
+            f"• *Purpose*      : {m['purpose']}",
             "─" * 35,
         ]
+        lines += entry
     return "\n".join(lines)
 
 
@@ -1180,9 +1224,9 @@ for list_type in LIST_TYPES:
 
         time.sleep(3)   # pause between causelists
 
-print(f"\n{'═'*55}")
-print(f"  ✅ All done!")
-print(f"{'═'*55}")
+    print(f"\n{'═'*55}")
+    print(f"  ✅ All done!")
+    print(f"{'═'*55}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
