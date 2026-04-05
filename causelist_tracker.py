@@ -779,16 +779,24 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                 if re.search(r'\bVS\.?\b', piece_text, re.IGNORECASE):
                     lane = "party_detail"
                 elif anchors:
-                    cand_lanes = []
-                    for name, ax in anchors.items():
-                        if piece["x0"] >= ax - 15:
-                            cand_lanes.append((name, ax))
-                    
-                    if cand_lanes:
-                        lane = max(cand_lanes, key=lambda kv: kv[1])[0]
+                    # When both advocate columns exist, use midpoint to decide
+                    if "pet_advocate" in anchors and "res_advocate" in anchors:
+                        midpoint = (anchors["pet_advocate"] + anchors["res_advocate"]) / 2
+                        if piece["x0"] >= midpoint:
+                            lane = "res_advocate"
+                        else:
+                            lane = "pet_advocate"
                     else:
-                        distances = {name: abs(piece["x0"] - ax) for name, ax in anchors.items()}
-                        lane = min(distances, key=distances.get)
+                        cand_lanes = []
+                        for name, ax in anchors.items():
+                            if piece["x0"] >= ax - 15:
+                                cand_lanes.append((name, ax))
+                        
+                        if cand_lanes:
+                            lane = max(cand_lanes, key=lambda kv: kv[1])[0]
+                        else:
+                            distances = {name: abs(piece["x0"] - ax) for name, ax in anchors.items()}
+                            lane = min(distances, key=distances.get)
 
                     if abs(piece["x0"] - anchors[lane]) > anchor_threshold:
                         if "res_advocate" not in anchors and piece["x0"] > anchors.get("pet_advocate", 0) + 90:
@@ -799,11 +807,6 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                             anchors["pet_advocate"] = piece["x0"]
                             lane = "pet_advocate"
                             active_template = dict(anchors)
-                        else:
-                            # Fall back to nearest anchor when the primary
-                            # logic picked a lane that is too far away.
-                            distances = {name: abs(piece["x0"] - ax) for name, ax in anchors.items()}
-                            lane = min(distances, key=distances.get)
 
                 if lane is None:
                     if not lane_parts["party_detail"]:
