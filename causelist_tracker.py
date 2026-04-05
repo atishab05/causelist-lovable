@@ -799,6 +799,11 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                             anchors["pet_advocate"] = piece["x0"]
                             lane = "pet_advocate"
                             active_template = dict(anchors)
+                        else:
+                            # Fall back to nearest anchor when the primary
+                            # logic picked a lane that is too far away.
+                            distances = {name: abs(piece["x0"] - ax) for name, ax in anchors.items()}
+                            lane = min(distances, key=distances.get)
 
                 if lane is None:
                     if not lane_parts["party_detail"]:
