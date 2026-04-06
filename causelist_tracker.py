@@ -177,7 +177,8 @@ def get_file_dates(list_type, upload_date):
     elif "WEEK" in lt:
         suffix         = "-WKL"
         current_monday = upload_date - timedelta(days=upload_date.weekday())
-        file_dates     = [current_monday + timedelta(days=7)]
+        raw_monday     = current_monday + timedelta(days=7)
+        file_dates     = [advance_to_working(raw_monday)]
 
     else:
         suffix     = ""
