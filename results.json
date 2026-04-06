@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-06T00:28:30+05:30",
+  "updated_at": "2026-04-06T19:49:35+05:30",
   "runs": [
     {
       "list_type": "SUPPLEMENTARY LIST",
@@ -305,6 +305,40 @@
           "res_advocate": "A.G. SHALEEN SINGH BAGHEL AVINASH SINGH SANGHARSH PANDEY"
         }
       ]
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "08 Apr,2026",
+      "ran_at": "2026-04-06T19:48:46+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32329555/causelist.pdf",
+      "pdf_pages": 196,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 50,
+          "judges": [
+            "HON'BLE SHRI JUSTICE SANJAY AGRAWAL",
+            "HON'BLE SHRI JUSTICE PARTH PRATEEM SAHU"
+          ],
+          "court": "COURT NO. \"5\"",
+          "list_no": "LIST – 1",
+          "sno": "12",
+          "case_no": "CONT/476/2026",
+          "purpose": "* [ON ADMISSION] [WITH WPS 6569/2022] []",
+          "party_detail": "SMT. MEENA BANJARE VS. DR. K.K. TIWARI AND 1 OTHER",
+          "pet_advocate": "SUNIL SAHU SUMIT SHRIVASTAVA SAHIL SAHU RAJENDRA PATEL SANJEEV BANJARE",
+          "res_advocate": ""
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "07 Apr,2026",
+      "ran_at": "2026-04-06T19:49:35+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32329631/causelist.pdf",
+      "pdf_pages": 59,
+      "match_count": 0,
+      "matches": []
     }
   ]
 }
