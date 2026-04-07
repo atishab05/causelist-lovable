@@ -493,6 +493,7 @@ def _parse_pdf_legacy(pdf_path, lawyer_name):
 
     pending_judges = []
     pending_court  = ""
+    prev_line_text = ""
 
     with pdfplumber.open(pdf_path) as pdf:
         total_pages = len(pdf.pages)
@@ -514,11 +515,18 @@ def _parse_pdf_legacy(pdf_path, lawyer_name):
                 all_lines.append({"page": page_num, "text": cleaned})
 
                 if honble_re.search(s):
-                    # Only treat as a judge line if it does NOT contain
-                    # "TIED UP" or "EXCEPTION" context markers — those are
-                    # references to other benches, not the current bench header
                     upper_s = s.upper()
-                    if "TIED UP" not in upper_s and "EXCEPTION" not in upper_s:
+                    prev_upper = prev_line_text.upper()
+                    if ("TIED UP" not in upper_s
+                        and "EXCEPTION" not in upper_s
+                        and "BY ORDER" not in upper_s
+                        and "AUTHORITY" not in upper_s
+                        and "PUBLISHED" not in upper_s
+                        and "BY ORDER" not in prev_upper
+                        and "TIED UP" not in prev_upper
+                        and "EXCEPTION" not in prev_upper
+                        and "JUSTICE" in upper_s
+                        and "BEFORE THE" not in upper_s):
                         pending_judges.append(s)
                 elif court_re.search(s):
                     # COURT NO. X confirms the pending judges are the real bench
@@ -546,6 +554,7 @@ def _parse_pdf_legacy(pdf_path, lawyer_name):
                         if entry_re.match(cleaned):
                             pending_judges = []
                             pending_court  = ""
+                prev_line_text = s
 
     # ── PASS 2: split into entry blocks, match lawyer name ───────────────────
     def section_for_line(idx):
@@ -671,6 +680,7 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
     total_pages = 0
     pending_judges = []
     pending_court = ""
+    prev_line_text = ""
     current_case = None
     active_template = None
 
@@ -881,7 +891,17 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                     s = line["text"]
                     if honble_re.search(s):
                         upper_s = s.upper()
-                        if "TIED UP" not in upper_s and "EXCEPTION" not in upper_s:
+                        prev_upper = prev_line_text.upper()
+                        if ("TIED UP" not in upper_s
+                            and "EXCEPTION" not in upper_s
+                            and "BY ORDER" not in upper_s
+                            and "AUTHORITY" not in upper_s
+                            and "PUBLISHED" not in upper_s
+                            and "BY ORDER" not in prev_upper
+                            and "TIED UP" not in prev_upper
+                            and "EXCEPTION" not in prev_upper
+                            and "JUSTICE" in upper_s
+                            and "BEFORE THE" not in upper_s):
                             pending_judges.append(s)
                     elif court_re.search(s):
                         pending_court = s
@@ -903,6 +923,7 @@ def _parse_pdf_structured(pdf_path, lawyer_name):
                         pending_judges = []
                         pending_court = ""
 
+                    prev_line_text = s
                 row_words = sorted(line["words"], key=lambda w: float(w["x0"]))
                 if len(row_words) >= 2:
                     left_word = row_words[0]["text"].strip()
