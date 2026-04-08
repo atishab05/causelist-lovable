@@ -1,6 +1,6 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-08T20:32:46+05:30",
+  "updated_at": "2026-04-08T21:17:11+05:30",
   "runs": [
     {
       "list_type": "SUPPLEMENTARY LIST",
@@ -363,6 +363,39 @@
       "ran_at": "2026-04-08T20:32:46+05:30",
       "pdf_url": "http://tmpfiles.org/dl/32619689/causelist.pdf",
       "pdf_pages": 42,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "10 Apr,2026",
+      "ran_at": "2026-04-08T21:15:26+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32625395/causelist.pdf",
+      "pdf_pages": 131,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 55,
+          "judges": [
+            "HON'BLE SHRI JUSTICE PARTH PRATEEM SAHU"
+          ],
+          "court": "COURT NO. \"5\"",
+          "list_no": "LIST – 1",
+          "sno": "24",
+          "case_no": "WPS/3146/2026",
+          "purpose": "* [ ON ADMISSION ] []",
+          "party_detail": "SMT. RAMAYAN BAI SENDRE VS. STATE OF CHHATTISGARH AND 2 OTHERS",
+          "pet_advocate": "WASIM MIYAN SANJEEV BANJARE JAVED KHAN RAJBAHADUR SINGH MEGHA MISHRA",
+          "res_advocate": "A.G."
+        }
+      ]
+    },
+    {
+      "list_type": "WEEKLY LIST",
+      "date_str": "13 Apr,2026",
+      "ran_at": "2026-04-08T21:17:11+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/32625634/causelist.pdf",
+      "pdf_pages": 108,
       "match_count": 0,
       "matches": []
     }
