@@ -1,25 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-22T21:19:07+05:30",
+  "updated_at": "2026-04-22T22:35:40+05:30",
   "runs": [
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "04 Apr,2026",
-      "ran_at": "2026-04-04T15:25:04+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32030416/causelist.pdf",
-      "pdf_pages": 5,
-      "match_count": 0,
-      "matches": []
-    },
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "07 Apr,2026",
-      "ran_at": "2026-04-04T15:25:36+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32030459/causelist.pdf",
-      "pdf_pages": 191,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "02 Apr,2026",
@@ -358,6 +340,40 @@
       "ran_at": "2026-04-22T21:19:07+05:30",
       "pdf_url": "http://tmpfiles.org/dl/34710055/causelist.pdf",
       "pdf_pages": 57,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "24 Apr,2026",
+      "ran_at": "2026-04-22T22:34:12+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/34718526/causelist.pdf",
+      "pdf_pages": 169,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 40,
+          "judges": [
+            "DUBEY,HON'BLE SHRI JUSTICE AMITENDRA",
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "70",
+          "case_no": "MCRC/2580/2026",
+          "purpose": "* [ ON ADMISSION. ] (NDPS ACT) C.O. [ AFTER FOUR WEEKS ] [RAIPUR]",
+          "party_detail": "AMRITPAL SINGH VS. STATE OF CHHATTISGARH",
+          "pet_advocate": "WASIM MIYAN MEHAR AFROZ RAJBAHADUR SINGH SANJEEV BANJARE SAGIR AHMED NOOR AFROZ",
+          "res_advocate": "A.G."
+        }
+      ]
+    },
+    {
+      "list_type": "WEEKLY LIST",
+      "date_str": "27 Apr,2026",
+      "ran_at": "2026-04-22T22:35:40+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/34718675/causelist.pdf",
+      "pdf_pages": 108,
       "match_count": 0,
       "matches": []
     }
