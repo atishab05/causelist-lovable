@@ -1,16 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-23T21:24:57+05:30",
+  "updated_at": "2026-04-24T03:32:31+05:30",
   "runs": [
-    {
-      "list_type": "SUPPLEMENTARY LIST",
-      "date_str": "06 Apr,2026",
-      "ran_at": "2026-04-04T19:30:48+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32056624/causelist.pdf",
-      "pdf_pages": 60,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "WEEKLY LIST",
       "date_str": "06 Apr,2026",
@@ -374,6 +365,15 @@
       "ran_at": "2026-04-23T21:24:57+05:30",
       "pdf_url": "http://tmpfiles.org/dl/34852474/causelist.pdf",
       "pdf_pages": 42,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "25 Apr,2026",
+      "ran_at": "2026-04-24T03:32:31+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/34902133/causelist.pdf",
+      "pdf_pages": 144,
       "match_count": 0,
       "matches": []
     }
