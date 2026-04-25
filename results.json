@@ -1,16 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-25T20:13:11+05:30",
+  "updated_at": "2026-04-25T20:55:05+05:30",
   "runs": [
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "09 Apr,2026",
-      "ran_at": "2026-04-07T20:35:50+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32479875/causelist.pdf",
-      "pdf_pages": 166,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "DAILY LIST",
       "date_str": "08 Apr,2026",
@@ -361,6 +352,44 @@
       "pdf_pages": 44,
       "match_count": 0,
       "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "28 Apr,2026",
+      "ran_at": "2026-04-25T20:55:05+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/35141037/causelist.pdf",
+      "pdf_pages": 178,
+      "match_count": 2,
+      "matches": [
+        {
+          "page": 37,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "95",
+          "case_no": "MCRC/2838/2026",
+          "purpose": "* [ ON ADMISSION. ] C.O. [ AFTER TWO WEEKS ] {LISTED ALONG WITH MCRC NO. 2841/2026 } [BILASPUR]",
+          "party_detail": "RAHUL SURYAVANSHI VS. STATE OF CHHATTISGARH WITH",
+          "pet_advocate": "WASIM MIYAN MEGHA MISHRA DEV ASHISH BISWAS RAJBAHADUR SINGH SANJEEV BANJARE",
+          "res_advocate": "A.G."
+        },
+        {
+          "page": 38,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "96",
+          "case_no": "MCRC/2841/2026",
+          "purpose": "* [ ON ADMISSION. ] C.O. [ AFTER TWO WEEKS ] [BILASPUR]",
+          "party_detail": "RAHUL SURYAVANSHI VS. STATE OF CHHATTISGARH",
+          "pet_advocate": "WASIM MIYAN MEGHA MISHRA DEV ASHISH BISWAS RAJBAHADUR SINGH SANJEEV BANJARE FINAL DISPOSAL/FINAL HEARING",
+          "res_advocate": "A.G."
+        }
+      ]
     }
   ]
 }
