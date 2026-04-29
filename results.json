@@ -1,49 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-27T21:19:48+05:30",
+  "updated_at": "2026-04-29T21:23:01+05:30",
   "runs": [
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "10 Apr,2026",
-      "ran_at": "2026-04-08T21:15:26+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32625395/causelist.pdf",
-      "pdf_pages": 131,
-      "match_count": 1,
-      "matches": [
-        {
-          "page": 55,
-          "judges": [
-            "HON'BLE SHRI JUSTICE PARTH PRATEEM SAHU"
-          ],
-          "court": "COURT NO. \"5\"",
-          "list_no": "LIST – 1",
-          "sno": "24",
-          "case_no": "WPS/3146/2026",
-          "purpose": "* [ ON ADMISSION ] []",
-          "party_detail": "SMT. RAMAYAN BAI SENDRE VS. STATE OF CHHATTISGARH AND 2 OTHERS",
-          "pet_advocate": "WASIM MIYAN SANJEEV BANJARE JAVED KHAN RAJBAHADUR SINGH MEGHA MISHRA",
-          "res_advocate": "A.G."
-        }
-      ]
-    },
-    {
-      "list_type": "WEEKLY LIST",
-      "date_str": "13 Apr,2026",
-      "ran_at": "2026-04-08T21:17:11+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32625634/causelist.pdf",
-      "pdf_pages": 108,
-      "match_count": 0,
-      "matches": []
-    },
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "13 Apr,2026",
-      "ran_at": "2026-04-09T20:53:04+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/32783252/causelist.pdf",
-      "pdf_pages": 151,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "10 Apr,2026",
@@ -390,6 +348,63 @@
       "pdf_pages": 40,
       "match_count": 0,
       "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "30 Apr,2026",
+      "ran_at": "2026-04-29T21:22:00+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/35720698/causelist.pdf",
+      "pdf_pages": 150,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 24,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "41",
+          "case_no": "MCRC/3985/2026",
+          "purpose": "* [ ON ADMISSION ] ( NDPS ACT ) [RAIPUR]",
+          "party_detail": "AVTAR SINGH @ PAWAN VS. STATE OF CHHATTISGARH",
+          "pet_advocate": "WASIM MIYAN DEV ASHISH BISWAS MEHAR AFROZ SANJEEV BANJARE RAJBAHADUR SINGH SAGIR AHMED NOOR AFROZ",
+          "res_advocate": "A.G."
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "30 Apr,2026",
+      "ran_at": "2026-04-29T21:22:33+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/35720778/causelist.pdf",
+      "pdf_pages": 47,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "WEEKLY LIST",
+      "date_str": "04 May,2026",
+      "ran_at": "2026-04-29T21:23:01+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/35720850/causelist.pdf",
+      "pdf_pages": 128,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 102,
+          "judges": [
+            "HON'BLE SHRI JUSTICE RAVINDRA KUMAR AGRAWAL"
+          ],
+          "court": "COURT NO. \"3\"",
+          "list_no": "LIST – 3 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH - I LIST WHICHEVER IS",
+          "sno": "24",
+          "case_no": "WPS/5275/2016",
+          "purpose": "* [ FOR FINAL HEARING ] [ C.O. MONTH OF JANUARY, 2026 ] []",
+          "party_detail": "SMT. ANITA MUDLIYAR DAVE VS. STATE OF CHHATTISGARH AND 6 OTHERS",
+          "pet_advocate": "AWADH TRIPATHI INDIRA TRIPATHI VIVEK KUMAR TRIPATHI SANJEEV BANJARE WASIM MIYAN",
+          "res_advocate": "A.G. SHALEEN SINGH BAGHEL AVINASH SINGH SANGHARSH PANDEY"
+        }
+      ]
     }
   ]
 }
