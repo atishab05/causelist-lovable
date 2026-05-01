@@ -1,16 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-04-30T21:21:36+05:30",
+  "updated_at": "2026-05-01T21:01:08+05:30",
   "runs": [
-    {
-      "list_type": "SUPPLEMENTARY LIST",
-      "date_str": "15 Apr,2026",
-      "ran_at": "2026-04-13T20:46:49+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/33412379/causelist.pdf",
-      "pdf_pages": 48,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "16 Apr,2026",
@@ -436,6 +427,30 @@
       "pdf_pages": 43,
       "match_count": 0,
       "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "05 May,2026",
+      "ran_at": "2026-05-01T21:01:08+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/36033280/causelist.pdf",
+      "pdf_pages": 172,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 32,
+          "judges": [
+            "HON'BLE THE CHIEF JUSTICE"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
+          "sno": "45",
+          "case_no": "MCRC/4167/2026",
+          "purpose": "* [ON ADMISSION] (NDPS ACT) (SAME FIR NO.) [RAIPUR]",
+          "party_detail": "NITIN PATEL VS. STATE OF CHHATTISGARH TIED UP : HON'BLE THE CHIEF JUSTICE SHRI RAMESH SINHA",
+          "pet_advocate": "WASIM MIYAN MEHAR AFROZ RAJBAHADUR SINGH SANJEEV BANJARE SAGIR AHMED NOOR AFROZ",
+          "res_advocate": "A.G."
+        }
+      ]
     }
   ]
 }
