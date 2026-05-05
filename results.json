@@ -1,40 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-05-04T21:33:17+05:30",
+  "updated_at": "2026-05-05T21:29:57+05:30",
   "runs": [
-    {
-      "list_type": "SUPPLEMENTARY LIST",
-      "date_str": "17 Apr,2026",
-      "ran_at": "2026-04-16T20:57:41+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/33942046/causelist.pdf",
-      "pdf_pages": 53,
-      "match_count": 0,
-      "matches": []
-    },
-    {
-      "list_type": "WEEKLY LIST",
-      "date_str": "20 Apr,2026",
-      "ran_at": "2026-04-16T20:58:12+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/33942108/causelist.pdf",
-      "pdf_pages": 129,
-      "match_count": 1,
-      "matches": [
-        {
-          "page": 88,
-          "judges": [
-            "HON'BLE SHRI JUSTICE RAVINDRA KUMAR AGRAWAL"
-          ],
-          "court": "COURT NO. \"3\"",
-          "list_no": "LIST – 3 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH - I LIST WHICHEVER IS",
-          "sno": "23",
-          "case_no": "WPS/5275/2016",
-          "purpose": "* [ FOR FINAL HEARING ] [ C.O. MONTH OF JANUARY, 2026 ] []",
-          "party_detail": "SMT. ANITA MUDLIYAR DAVE VS. STATE OF CHHATTISGARH AND 6 OTHERS",
-          "pet_advocate": "AWADH TRIPATHI INDIRA TRIPATHI VIVEK KUMAR TRIPATHI SANJEEV BANJARE WASIM MIYAN",
-          "res_advocate": "A.G. SHALEEN SINGH BAGHEL AVINASH SINGH SANGHARSH PANDEY"
-        }
-      ]
-    },
     {
       "list_type": "DAILY LIST",
       "date_str": "21 Apr,2026",
@@ -449,6 +416,40 @@
       "ran_at": "2026-05-04T21:33:17+05:30",
       "pdf_url": "http://tmpfiles.org/dl/36491822/causelist.pdf",
       "pdf_pages": 52,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "07 May,2026",
+      "ran_at": "2026-05-05T21:29:26+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/36643795/causelist.pdf",
+      "pdf_pages": 160,
+      "match_count": 1,
+      "matches": [
+        {
+          "page": 21,
+          "judges": [
+            "HON'BLE SHRI JUSTICE PARTH PRATEEM SAHU",
+            "HON'BLE SHRI JUSTICE SACHIN SINGH RAJPUT"
+          ],
+          "court": "COURT NO. \"5\"",
+          "list_no": "LIST – 2",
+          "sno": "7",
+          "case_no": "FA(MAT)/50/2026",
+          "purpose": "* [ I.A. NO. 02 APPLICATION FOR CONDONATION OF DELAY IN FILING THE APPEAL (BARRED BY 90",
+          "party_detail": "MINOR MOHAMMAD ANASH KHAN @ ANSH KHAN AND 1 OTHER VS. HARUN RASHID KHAN AND 1 OTHER DAYS) ] [COURT SLIP NEXT WEEK.] [RAIGARH] MOTION HEARING MATTERS",
+          "pet_advocate": "RAJENDRA TRIPATHI",
+          "res_advocate": "WASIM MIYAN JAVED KHAN MEGHA MISHRA RAJBAHADUR SINGH DEV ASHISH BISWAS SANJEEV BANJARE"
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "06 May,2026",
+      "ran_at": "2026-05-05T21:29:57+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/36643860/causelist.pdf",
+      "pdf_pages": 38,
       "match_count": 0,
       "matches": []
     }
