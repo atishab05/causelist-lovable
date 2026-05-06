@@ -1,45 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-05-05T21:29:57+05:30",
+  "updated_at": "2026-05-06T21:45:14+05:30",
   "runs": [
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "21 Apr,2026",
-      "ran_at": "2026-04-18T08:19:24+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/34199498/causelist.pdf",
-      "pdf_pages": 174,
-      "match_count": 2,
-      "matches": [
-        {
-          "page": 164,
-          "judges": [
-            "HON'BLE SHRI JUSTICE AMITENDRA KISHORE PRASAD"
-          ],
-          "court": "COURT NO. \"20\"",
-          "list_no": "LIST – 2",
-          "sno": "17",
-          "case_no": "WPC/1701/2021",
-          "purpose": "* [ ON ADMISSION & IA NO. 01 FOR GRANT OF AD-INTERIM RELIEF, I.A. NO. 02 FOR TAKING",
-          "party_detail": "DAYAL RAJPAL AND 1 OTHER VS. RAIPUR DEVELOPMENT AUTHORITY AND 3 OTHERS DOCUMENT ON RECORD IN SUPPORT OF CLARIFICATION AND MODIFICATION OF ORDER & I.A. NO. 05 FOR APPLICATION ] [] WITH",
-          "pet_advocate": "SUMIT SHRIVASTAVA SUNIL SAHU SANJEEV BANJARE APPLICATION FOR INTERIM ORDER DATED 23.03.2021 OF ISSUANCE OF APPROPRIATE DIRECTION/INTERIM RELIEF",
-          "res_advocate": "ARVIND SHRIVASTAVA ASHISH SURANA CHETAN SINGH CHAUHAN AMAN PANDEY ROHISHEK VERMA ASMITA SINGHAI AMAN SAXENA RELIEF, I.A.NO. 03 FOR & I.A. NO. 04 FOR APPROPRIATE"
-        },
-        {
-          "page": 165,
-          "judges": [
-            "HON'BLE SHRI JUSTICE AMITENDRA KISHORE PRASAD"
-          ],
-          "court": "COURT NO. \"20\"",
-          "list_no": "LIST – 2",
-          "sno": "18",
-          "case_no": "WPC/2388/2021",
-          "purpose": "* ON ADMISSION AND I.A. NO. 01 APPLICATION FOR GRANT OF AD-INTERIM RELIEF. []",
-          "party_detail": "DAYAL RAJPAL VS. STATE OF CHHATTISGARH",
-          "pet_advocate": "M.L.SAKAT B.P.SHARMA HIMANSHU PANDEY TRISHNA DAS RAZA ALI CHAKRESH TIWARI SUNIL SAHU SUMIT SHRIVASTAVA SANJEEV BANJARE",
-          "res_advocate": "A.G. SWATI AGRAWAL ASHISH SURANA (INTERVENER) PREETI YADAV SMT. A. SANDHYA RAO AKSHAT AGRAWAL RAKSHIT TIWARI PANKAJ AGRAWAL (WITH NOC.)"
-        }
-      ]
-    },
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "20 Apr,2026",
@@ -450,6 +412,15 @@
       "ran_at": "2026-05-05T21:29:57+05:30",
       "pdf_url": "http://tmpfiles.org/dl/36643860/causelist.pdf",
       "pdf_pages": 38,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "07 May,2026",
+      "ran_at": "2026-05-06T21:45:14+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/36799278/causelist.pdf",
+      "pdf_pages": 124,
       "match_count": 0,
       "matches": []
     }
