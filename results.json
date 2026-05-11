@@ -1,41 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-05-08T20:52:56+05:30",
+  "updated_at": "2026-05-11T22:03:52+05:30",
   "runs": [
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "24 Apr,2026",
-      "ran_at": "2026-04-22T22:34:12+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/34718526/causelist.pdf",
-      "pdf_pages": 169,
-      "match_count": 1,
-      "matches": [
-        {
-          "page": 40,
-          "judges": [
-            "DUBEY,HON'BLE SHRI JUSTICE AMITENDRA",
-            "HON'BLE THE CHIEF JUSTICE"
-          ],
-          "court": "THE CHIEF JUSTICE'S COURT",
-          "list_no": "LIST – 1 [ AT 02:15 P.M. OR AFTER COMPLETION OF DB-I LIST WHICHEVER IS EARLIER ]",
-          "sno": "70",
-          "case_no": "MCRC/2580/2026",
-          "purpose": "* [ ON ADMISSION. ] (NDPS ACT) C.O. [ AFTER FOUR WEEKS ] [RAIPUR]",
-          "party_detail": "AMRITPAL SINGH VS. STATE OF CHHATTISGARH",
-          "pet_advocate": "WASIM MIYAN MEHAR AFROZ RAJBAHADUR SINGH SANJEEV BANJARE SAGIR AHMED NOOR AFROZ",
-          "res_advocate": "A.G."
-        }
-      ]
-    },
-    {
-      "list_type": "WEEKLY LIST",
-      "date_str": "27 Apr,2026",
-      "ran_at": "2026-04-22T22:35:40+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/34718675/causelist.pdf",
-      "pdf_pages": 108,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "24 Apr,2026",
@@ -479,6 +445,53 @@
       "ran_at": "2026-05-08T20:52:56+05:30",
       "pdf_url": "http://tmpfiles.org/dl/37101030/causelist.pdf",
       "pdf_pages": 76,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "13 May,2026",
+      "ran_at": "2026-05-11T22:03:12+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/37583815/causelist.pdf",
+      "pdf_pages": 164,
+      "match_count": 2,
+      "matches": [
+        {
+          "page": 54,
+          "judges": [
+            "HON'BLE SHRI JUSTICE PARTH PRATEEM SAHU"
+          ],
+          "court": "COURT NO. \"5\"",
+          "list_no": "LIST – 2 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH – IV LIST WHICHEVER IS",
+          "sno": "9",
+          "case_no": "WPC/1701/2021",
+          "purpose": "* [ ON ADMISSION & IA NO. 01 FOR GRANT OF AD-INTERIM RELIEF, I.A. NO. 02 FOR TAKING DOCUMENT",
+          "party_detail": "DAYAL RAJPAL AND 1 OTHER VS. RAIPUR DEVELOPMENT AUTHORITY AND 3 OTHERS ON RECORD IN SUPPORT OF APPLICATION FOR MODIFICATION OF ORDER DATED 23.03.2021 APPLICATION OF ISSUANCE OF APPROPRIATE WITH",
+          "pet_advocate": "SUMIT SHRIVASTAVA SUNIL SAHU SANJEEV BANJARE INTERIM RELIEF, I.A.NO. 03 & I.A. NO. 04 FOR APPROPRIATE DIRECTION/INTERIM RELIEF",
+          "res_advocate": "ASHISH SURANA CHETAN SINGH CHAUHAN AMAN PANDEY ROHISHEK VERMA ASMITA SINGHAI AMAN SAXENA FOR CLARIFICATION AND ORDER & I.A. NO. 05 FOR ] [ C.O. W.C. 11.05.2026 ] []"
+        },
+        {
+          "page": 55,
+          "judges": [
+            "HON'BLE SHRI JUSTICE PARTH PRATEEM SAHU"
+          ],
+          "court": "COURT NO. \"5\"",
+          "list_no": "LIST – 2 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH – IV LIST WHICHEVER IS",
+          "sno": "10",
+          "case_no": "WPC/2388/2021",
+          "purpose": "* ON ADMISSION AND I.A. NO. 01 APPLICATION FOR GRANT OF AD-INTERIM RELIEF. [COURT ORDER- W.C.",
+          "party_detail": "DAYAL RAJPAL VS. STATE OF CHHATTISGARH 11.05.2026] []",
+          "pet_advocate": "M.L.SAKAT B.P.SHARMA HIMANSHU PANDEY TRISHNA DAS RAZA ALI CHAKRESH TIWARI SUNIL SAHU SUMIT SHRIVASTAVA SANJEEV BANJARE",
+          "res_advocate": "A.G. SWATI AGRAWAL ASHISH SURANA (INTERVENER) PREETI YADAV SMT. A. SANDHYA RAO AKSHAT AGRAWAL RAKSHIT TIWARI PANKAJ AGRAWAL (WITH NOC.)"
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "12 May,2026",
+      "ran_at": "2026-05-11T22:03:52+05:30",
+      "pdf_url": "http://tmpfiles.org/dl/37583902/causelist.pdf",
+      "pdf_pages": 51,
       "match_count": 0,
       "matches": []
     }
