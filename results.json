@@ -1,25 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-05-11T22:03:52+05:30",
+  "updated_at": "2026-05-12T21:49:14+05:30",
   "runs": [
-    {
-      "list_type": "SUPPLEMENTARY LIST",
-      "date_str": "24 Apr,2026",
-      "ran_at": "2026-04-23T21:24:57+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/34852474/causelist.pdf",
-      "pdf_pages": 42,
-      "match_count": 0,
-      "matches": []
-    },
-    {
-      "list_type": "DAILY LIST",
-      "date_str": "25 Apr,2026",
-      "ran_at": "2026-04-24T03:32:31+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/34902133/causelist.pdf",
-      "pdf_pages": 144,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "DAILY LIST",
       "date_str": "27 Apr,2026",
@@ -492,6 +474,55 @@
       "ran_at": "2026-05-11T22:03:52+05:30",
       "pdf_url": "http://tmpfiles.org/dl/37583902/causelist.pdf",
       "pdf_pages": 51,
+      "match_count": 0,
+      "matches": []
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "14 May,2026",
+      "ran_at": "2026-05-12T21:48:46+05:30",
+      "pdf_url": "https://tmpfiles.org/dl/wkwkwgUvDfPm/causelist.pdf",
+      "pdf_pages": 198,
+      "match_count": 2,
+      "matches": [
+        {
+          "page": 5,
+          "judges": [
+            "RAMESH SINHA,HON'BLE SHRI JUSTICE PRIYANKA SHUKLA",
+            "HON'BLE THE CHIEF JUSTICE",
+            "HON'BLE SHRI JUSTICE RAVINDRA KUMAR AGRAWAL"
+          ],
+          "court": "THE CHIEF JUSTICE'S COURT",
+          "list_no": "LIST – 1",
+          "sno": "16",
+          "case_no": "CRMP/1371/2026",
+          "purpose": "* [ ON ADMISSION AND I.A. NO. 01 APPLICATION FOR GRANT OF INTERIM RELIEF/ STAY ] [BILASPUR]",
+          "party_detail": "PRITAM MAHANT AND 2 OTHERS VS. STATE OF CHHATTISGARH AND 1 OTHER",
+          "pet_advocate": "WASIM MIYAN JAVED KHAN RAJBAHADUR SINGH DEV ASHISH BISWAS SANJEEV BANJARE KAVISHWAR KUMAR GHODICHORE",
+          "res_advocate": "A.G."
+        },
+        {
+          "page": 75,
+          "judges": [
+            "HON'BLE SHRI JUSTICE SACHIN SINGH RAJPUT"
+          ],
+          "court": "COURT NO. \"10\"",
+          "list_no": "LIST – 2 [ AT 2:15 PM OR AFTER COMPLETION OF DIVISION BENCH - IV LIST WHICHEVER IS",
+          "sno": "17",
+          "case_no": "FA/152/2018",
+          "purpose": "* I.A. 01 APPLICATION UNDER ORDER 39 RULE 1 AND 2 OF THE CODE OF CIVIL PROCEDURE FOR",
+          "party_detail": "SURJEET SINGH KHANUJA AND 1 OTHER VS. BAHADUR SINGH AND 3 OTHERS GRANT ON INJUNCTION & I.A. 03 APPLICATION RGANT OF INJUNCTION NEXT WEEK []",
+          "pet_advocate": "ANKIT SINGHAL S.K.RATRE VIVEK KUMAR TRIPATHI WASIM MIYAN SANJEEV BANJARE RAJBAHADUR SINGH UNDER ORDER 39, RULE",
+          "res_advocate": "A. G. ASHOK KUMAR SHUKLA GUNJAN SHUKLA ATANU GHOSH 1 AND 2 OF CPC FOR"
+        }
+      ]
+    },
+    {
+      "list_type": "SUPPLEMENTARY LIST",
+      "date_str": "13 May,2026",
+      "ran_at": "2026-05-12T21:49:14+05:30",
+      "pdf_url": "https://tmpfiles.org/dl/wYw8wNUgSehg/causelist.pdf",
+      "pdf_pages": 56,
       "match_count": 0,
       "matches": []
     }
