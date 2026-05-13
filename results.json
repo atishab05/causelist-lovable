@@ -1,16 +1,7 @@
 {
   "lawyer_name": "SANJEEV BANJARE",
-  "updated_at": "2026-05-13T21:43:54+05:30",
+  "updated_at": "2026-05-13T21:49:40+05:30",
   "runs": [
-    {
-      "list_type": "SUPPLEMENTARY LIST",
-      "date_str": "25 Apr,2026",
-      "ran_at": "2026-04-24T20:40:16+05:30",
-      "pdf_url": "http://tmpfiles.org/dl/35000729/causelist.pdf",
-      "pdf_pages": 46,
-      "match_count": 0,
-      "matches": []
-    },
     {
       "list_type": "SUPPLEMENTARY LIST",
       "date_str": "27 Apr,2026",
@@ -554,6 +545,15 @@
           "res_advocate": "A.G. SWATI AGRAWAL ASHISH SURANA (INTERVENER) PREETI YADAV SMT. A. SANDHYA RAO AKSHAT AGRAWAL RAKSHIT TIWARI PANKAJ AGRAWAL (WITH NOC.) Sd/- REGISTRAR (JUDICIAL) contain requisite not constitute the the Judge. Res Advocate"
         }
       ]
+    },
+    {
+      "list_type": "DAILY LIST",
+      "date_str": "15 May,2026",
+      "ran_at": "2026-05-13T21:49:40+05:30",
+      "pdf_url": "https://tmpfiles.org/dl/wbwIwSLrI5IU/causelist.pdf",
+      "pdf_pages": 176,
+      "match_count": 0,
+      "matches": []
     }
   ]
 }
